@@ -1,0 +1,2 @@
+class WallError(Exception):
+    pass
