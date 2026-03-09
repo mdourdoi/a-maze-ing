@@ -1,0 +1,48 @@
+from CustomErrors import WallError
+
+
+class MazeCell():
+
+    def __init__(self,
+                 north: bool = True,
+                 east: bool = True,
+                 south: bool = True,
+                 west: bool = True,
+                 is_start: bool = False,
+                 is_end: bool = False) -> None:
+        '''Initializes the cell.
+        True means the cell has a wall in that direction'''
+        self.north = north
+        self.east = east
+        self.south = south
+        self.west = west
+        self.is_start = is_start
+        self.is_end = is_end
+
+    def pop_north(self) -> None:
+        '''Pops the northern wall, return WallError if there is no wall'''
+        if self.north:
+            self.north = False
+        else:
+            raise WallError('The northern wall is already open')
+
+    def pop_south(self) -> None:
+        '''Pops the southern wall, return WallError if there is no wall'''
+        if self.south:
+            self.south = False
+        else:
+            raise WallError('The southern wall is already open')
+
+    def pop_east(self) -> None:
+        '''Pops the eastern wall, return WallError if there is no wall'''
+        if self.east:
+            self.east = False
+        else:
+            raise WallError('The eastern wall is already open')
+
+    def pop_west(self) -> None:
+        '''Pops the western wall, return WallError if there is no wall'''
+        if self.west:
+            self.west = False
+        else:
+            raise WallError('The western wall is already open')
