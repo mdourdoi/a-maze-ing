@@ -10,3 +10,4 @@ class MazeEngine:
         if not isinstance(generator, MazeGenerator):
             raise TypeError('Please input a valid maze generator')
         self.generator = generator
+        self.seed = seed

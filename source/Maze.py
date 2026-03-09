@@ -1,5 +1,5 @@
 from Cell import MazeCell
-from typing import List
+from typing import List, Dict
 
 
 class Maze:
@@ -61,13 +61,13 @@ class Maze:
     def is_right_border(self, y: int) -> bool:
         return y == self.wid
 
-    def get_valid_neighbours(self, x: int, y: int) -> List[List[int, int]]:
-        res = []
+    def get_valid_neighbours(self, x: int, y: int) -> Dict[List[int, int]]:
+        res = {}
         if not (self.is_top_border(x) and self.body[x][y + 1].is_visited()):
-            res.append([x, y + 1])
+            res['north'] = [x, y + 1]
         if not (self.is_bot_border(x) and self.body[x][y - 1].is_visited()):
-            res.append([x, y - 1])
+            res['south'] = [x, y - 1]
         if not (self.is_left_border(y) and self.body[x + 1][y].is_visited()):
-            res.append([x + 1, y])
+            res['west'] = [x - 1, y]
         if not (self.is_right_border(y) and self.body[x - 1][y].is_visited()):
-            res.append([x - 1, y])
+            res['east'] = [x + 1, y]
