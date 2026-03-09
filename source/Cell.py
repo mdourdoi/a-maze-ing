@@ -9,7 +9,8 @@ class MazeCell():
                  south: bool = True,
                  west: bool = True,
                  is_start: bool = False,
-                 is_end: bool = False) -> None:
+                 is_end: bool = False,
+                 is_visited: bool = False) -> None:
         '''Initializes the cell.
         True means the cell has a wall in that direction'''
         self.north = north
@@ -18,6 +19,7 @@ class MazeCell():
         self.west = west
         self.is_start = is_start
         self.is_end = is_end
+        self.is_visited = is_visited
 
     def pop_north(self) -> None:
         '''Pops the northern wall, return WallError if there is no wall'''
