@@ -43,11 +43,12 @@ class Maze:
         if (entry[0] == out[0] and entry[1] == out[1]):
             raise ValueError('Entry and exit cannot be the same cell')
 
-        self.body = [[MazeCell() for i in range(leng)] for j in range(wid)]
-        self.wid = wid
-        self.leng = leng
-        self.entry = entry
-        self.out = out
+        self.body: List[List[MazeCell]] = [
+            [MazeCell() for i in range(leng)] for j in range(wid)]
+        self.wid: int = wid
+        self.leng: int = leng
+        self.entry: int = entry
+        self.out: int = out
 
     def is_top_border(self, x: int) -> bool:
         return x == 0

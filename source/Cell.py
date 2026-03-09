@@ -1,4 +1,4 @@
-from CustomErrors import WallError
+from errors import WallError
 
 
 class MazeCell():
