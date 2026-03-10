@@ -15,8 +15,13 @@ class MazeGenerator(ABC):
                  seed: int | None = None):
         if not str(name):
             raise ValueError('Please input a valid name')
+        maze = Maze(wid, leng, entry, out)
+        if maze.body[entry[1]][entry[0]].is_ft:
+            raise ValueError("The entry can't be in the 42 in the middle")
+        if maze.body[out[1]][out[0]].is_ft:
+            raise ValueError("The exit can't be in the 42 in the middle")
         self.name = str(name)
-        self.maze = Maze(wid, leng, entry, out)
+        self.maze = maze
         self.wid = wid
         self.leng = leng
         self.seed = seed
