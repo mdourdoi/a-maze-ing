@@ -1,3 +1,3 @@
-from HuntAndKill import HuntAndKillGenerator
+from .HuntAndKill import HuntAndKillGenerator
 
-__any__ = ['HuntAndKillGenerator']
+__all__ = ['HuntAndKillGenerator']
