@@ -22,13 +22,15 @@ class MazeGenerator(ABC):
             raise ValueError("The exit can't be in the 42 in the middle")
         self.name = str(name)
         self.maze = maze
+        self.maze.body[entry[1]][entry[0]].is_start = True
+        self.maze.body[out[1]][out[0]].is_end = True
         self.wid = wid
         self.leng = leng
         self.seed = seed
         self.random = random.Random(seed)
 
     @abstractmethod
-    def generate_maze(self, x: int, y: int) -> None:
+    def generate_maze(self) -> None:
         pass
 
     def carve(self, x: int, y: int, direction: str) -> None:
