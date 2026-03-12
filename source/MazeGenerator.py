@@ -1,6 +1,6 @@
 from .Maze import Maze
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Generator
 import random
 
 
@@ -30,7 +30,7 @@ class MazeGenerator(ABC):
         self.random = random.Random(seed)
 
     @abstractmethod
-    def generate_maze(self) -> None:
+    def generate_maze(self) -> Generator:
         pass
 
     def carve(self, x: int, y: int, direction: str) -> None:

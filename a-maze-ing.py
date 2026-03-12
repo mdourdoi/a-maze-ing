@@ -118,7 +118,6 @@ def main() -> None:
             render_menu()
 
         if key == 65293 and not mode_selected:
-            started = True
             mode_selected = menu_items[selected]
             m.mlx_clear_window(mlx, win)
             m.mlx_destroy_image(mlx, img)
@@ -130,6 +129,7 @@ def main() -> None:
 
             print('Selected:', mode_selected)
             if mode_selected == 'Hunt and kill':
+                started = True
                 generator = HuntAndKillGenerator(
                     name="hunt-and-kill",
                     entry=[39, 7],
@@ -138,22 +138,26 @@ def main() -> None:
                     leng=args.leng,
                     seed=args.seed
                 )
-            cell_size_x = 1200 // generator.leng
-            cell_size_y = 800 // generator.wid
-            h_wall = make_solid_image(cell_size_x, 1, 0xFFFF0000)
-            v_wall = make_solid_image(1, cell_size_y, 0xFFFF0000)
-            bg_image = make_solid_image(cell_size_x, cell_size_y, 0xFF000000)
-            start_image = make_solid_image(
-                cell_size_x, cell_size_y, 0xFF008000)
-            end_image = make_solid_image(cell_size_x, cell_size_y, 0xFF0000FF)
-            ft_image = make_solid_image(cell_size_x, cell_size_y, 0xFFFFFFFF)
-            iterator = generator.generate_maze()
-            for j in range(generator.wid):
-                for i in range(generator.leng):
-                    if (generator.maze.body[j][i].is_ft or
-                        generator.maze.body[j][i].is_start or
-                            generator.maze.body[j][i].is_end):
-                        draw_cell([i, j], generator.maze.body[j][i])
+            if started:
+                cell_size_x = 1200 // generator.leng
+                cell_size_y = 800 // generator.wid
+                h_wall = make_solid_image(cell_size_x, 1, 0xFFFF0000)
+                v_wall = make_solid_image(1, cell_size_y, 0xFFFF0000)
+                bg_image = make_solid_image(
+                    cell_size_x, cell_size_y, 0xFF000000)
+                start_image = make_solid_image(
+                    cell_size_x, cell_size_y, 0xFF008000)
+                end_image = make_solid_image(
+                    cell_size_x, cell_size_y, 0xFF0000FF)
+                ft_image = make_solid_image(
+                    cell_size_x, cell_size_y, 0xFFFFFFFF)
+                iterator = generator.generate_maze()
+                for j in range(generator.wid):
+                    for i in range(generator.leng):
+                        if (generator.maze.body[j][i].is_ft or
+                            generator.maze.body[j][i].is_start or
+                                generator.maze.body[j][i].is_end):
+                            draw_cell([i, j], generator.maze.body[j][i])
 
     def on_loop(ctx: Any) -> None:
         nonlocal started, iterator, frame, blink_on
