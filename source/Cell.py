@@ -1,4 +1,4 @@
-from errors import WallError
+from .errors import WallError
 
 
 class MazeCell():
@@ -10,7 +10,8 @@ class MazeCell():
                  west: bool = True,
                  is_start: bool = False,
                  is_end: bool = False,
-                 is_visited: bool = False) -> None:
+                 is_visited: bool = False,
+                 is_ft: bool = False) -> None:
         '''Initializes the cell.
         True means the cell has a wall in that direction'''
         self.north = north
@@ -20,6 +21,16 @@ class MazeCell():
         self.is_start = is_start
         self.is_end = is_end
         self.is_visited = is_visited
+        self.is_ft = is_ft
+
+    def set_start(self) -> None:
+        self.is_start = True
+
+    def set_end(self) -> None:
+        self.is_end = True
+
+    def visit(self) -> None:
+        self.is_visited = True
 
     def pop_north(self) -> None:
         '''Pops the northern wall, return WallError if there is no wall'''

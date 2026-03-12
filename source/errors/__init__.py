@@ -1,3 +1,3 @@
-from WallError import WallError
+from .WallError import WallError
 
 __all__ = ['WallError']
