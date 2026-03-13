@@ -1,25 +1,28 @@
-#!/usr/bin/env python3
-import argparse
+from helpers import get_config
 from mlx import Mlx
 from typing import Any, List
-from source import MazeCell
+from source import MazeCell, Maze
 from generators import HuntAndKillGenerator
+import sys
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Generate and print a maze with Hunt-and-Kill."
-    )
-    parser.add_argument(
-        "--wid",
-        type=int,
-        default=10,
-        help="Number of rows (y).")
-    parser.add_argument(
-        "--leng", type=int, default=20, help="Number of columns (x)."
-    )
-    parser.add_argument("--seed", type=int, default=None)
-    args = parser.parse_args()
+
+    config_file = sys.argv
+    if len(config_file) != 2:
+        print('Invalid arguments. ', end='')
+        print('Please input only the name of the config file')
+        return
+    try:
+        config = get_config('config.txt')
+        Maze(
+            config['HEIGHT'],
+            config['WIDTH'],
+            config['ENTRY'],
+            config['EXIT'])
+    except Exception as cur_error:
+        print(f"Error with given arguments: {cur_error}")
+        return
 
     m = Mlx()
     mlx = m.mlx_init()
@@ -55,6 +58,33 @@ def main() -> None:
                 off = row + x * byte_per_pixel
                 data[off:off + 4] = c
         return img
+
+    def destroy_runtime_images() -> None:
+        nonlocal img, h_wall, v_wall, bg_image
+        nonlocal start_image, end_image, ft_image
+
+        if img is not None:
+            m.mlx_destroy_image(mlx, img)
+            img = None
+
+        if h_wall is not None:
+            m.mlx_destroy_image(mlx, h_wall)
+            h_wall = None
+        if v_wall is not None:
+            m.mlx_destroy_image(mlx, v_wall)
+            v_wall = None
+        if bg_image is not None:
+            m.mlx_destroy_image(mlx, bg_image)
+            bg_image = None
+        if start_image is not None:
+            m.mlx_destroy_image(mlx, start_image)
+            start_image = None
+        if end_image is not None:
+            m.mlx_destroy_image(mlx, end_image)
+            end_image = None
+        if ft_image is not None:
+            m.mlx_destroy_image(mlx, ft_image)
+            ft_image = None
 
     def draw_cell(
             pos: List[int],
@@ -120,7 +150,6 @@ def main() -> None:
         if key == 65293 and not mode_selected:
             mode_selected = menu_items[selected]
             m.mlx_clear_window(mlx, win)
-            m.mlx_destroy_image(mlx, img)
 
             # Exit if 'Quit' is selected
             if mode_selected == 'Quit':
@@ -132,17 +161,17 @@ def main() -> None:
                 started = True
                 generator = HuntAndKillGenerator(
                     name="hunt-and-kill",
-                    entry=[39, 7],
-                    out=[4, 19],
-                    wid=args.wid,
-                    leng=args.leng,
-                    seed=args.seed
+                    entry=config['ENTRY'],
+                    out=config['EXIT'],
+                    height=config['HEIGHT'],
+                    wid=config['WIDTH'],
+                    seed=config['SEED'] if 'SEED' in config else None
                 )
             if started:
-                cell_size_x = 1200 // generator.leng
-                cell_size_y = 800 // generator.wid
-                h_wall = make_solid_image(cell_size_x, 1, 0xFFFF0000)
-                v_wall = make_solid_image(1, cell_size_y, 0xFFFF0000)
+                cell_size_x = 1200 // generator.wid
+                cell_size_y = 800 // generator.height
+                h_wall = make_solid_image(cell_size_x + 1, 1, 0xFFFF0000)
+                v_wall = make_solid_image(1, cell_size_y + 1, 0xFFFF0000)
                 bg_image = make_solid_image(
                     cell_size_x, cell_size_y, 0xFF000000)
                 start_image = make_solid_image(
@@ -152,8 +181,8 @@ def main() -> None:
                 ft_image = make_solid_image(
                     cell_size_x, cell_size_y, 0xFFFFFFFF)
                 iterator = generator.generate_maze()
-                for j in range(generator.wid):
-                    for i in range(generator.leng):
+                for j in range(generator.height):
+                    for i in range(generator.wid):
                         if (generator.maze.body[j][i].is_ft or
                             generator.maze.body[j][i].is_start or
                                 generator.maze.body[j][i].is_end):
@@ -210,9 +239,9 @@ def main() -> None:
     m.mlx_clear_window(mlx, win)
     m.mlx_key_hook(win, on_key, None)
     m.mlx_hook(win, 33, 0, on_close, None)
-
     m.mlx_loop_hook(mlx, on_loop, None)
     m.mlx_loop(mlx)
+    destroy_runtime_images()
     m.mlx_loop_exit(mlx)
     m.mlx_destroy_window(mlx, win)
     m.mlx_release(mlx)

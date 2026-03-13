@@ -8,10 +8,10 @@ class HuntAndKillGenerator(MazeGenerator):
                  name: str,
                  entry: List[int],
                  out: List[int],
+                 height: int,
                  wid: int,
-                 leng: int,
                  seed: int | None = None):
-        super().__init__(name, entry, out, wid, leng, seed)
+        super().__init__(name, entry, out, height, wid, seed)
 
     def generate_maze(self) -> Generator:
         cur_x, cur_y = self.maze.entry[0], self.maze.entry[1]
@@ -29,8 +29,8 @@ class HuntAndKillGenerator(MazeGenerator):
                 self.maze.body[cur_y][cur_x].visit()
             else:
                 running = False
-                for j in range(self.wid):
-                    for i in range(self.leng):
+                for j in range(self.height):
+                    for i in range(self.wid):
                         if (not self.maze.body[j][i].is_visited
                                 and not self.maze.body[j][i].is_ft):
                             vis_neigh = self.maze.get_visited_neighbours(i, j)
