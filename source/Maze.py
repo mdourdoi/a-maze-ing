@@ -4,8 +4,8 @@ from typing import List, Dict
 
 class Maze:
 
-    def __init__(self, wid: int,
-                 leng: int,
+    def __init__(self, height: int,
+                 wid: int,
                  entry: List[int],
                  out: List[int]) -> None:
         '''Initializes a maze with all cells having 4 walls'''
@@ -17,8 +17,8 @@ class Maze:
             raise TypeError(
                 'Entry and exit must be a list of exactly 2 values')
         try:
+            int(height)
             int(wid)
-            int(leng)
             int(entry[0])
             int(entry[1])
             int(out[0])
@@ -26,22 +26,22 @@ class Maze:
         except ValueError:
             raise ValueError('All values must be integers')
 
-        if (wid <= 0 or leng <= 0):
+        if (height <= 0 or wid <= 0):
             raise ValueError('Width and length must be strictly positive')
 
-        if (entry[0] < 0 or entry[0] >= leng
-            or entry[1] < 0 or entry[1] >= wid
-            or out[0] < 0 or out[0] >= leng
-                or out[1] < 0 or out[1] >= wid):
+        if (entry[0] < 0 or entry[0] >= wid
+            or entry[1] < 0 or entry[1] >= height
+            or out[0] < 0 or out[0] >= wid
+                or out[1] < 0 or out[1] >= height):
             raise ValueError('Entry and exit must be within the maze')
 
         if (entry[0] == out[0] and entry[1] == out[1]):
             raise ValueError('Entry and exit cannot be the same cell')
 
         self.body: List[List[MazeCell]] = [
-            [MazeCell() for i in range(leng)] for j in range(wid)]
+            [MazeCell() for i in range(wid)] for j in range(height)]
+        self.height: int = height
         self.wid: int = wid
-        self.leng: int = leng
         self.entry: List[int] = entry
         self.out: List[int] = out
         self.__set_forty_two_pattern()
@@ -50,13 +50,13 @@ class Maze:
         return y == 0
 
     def is_bot_border(self, y: int) -> bool:
-        return y == self.wid - 1
+        return y == self.height - 1
 
     def is_left_border(self, x: int) -> bool:
         return x == 0
 
     def is_right_border(self, x: int) -> bool:
-        return x == self.leng - 1
+        return x == self.wid - 1
 
     def get_valid_neighbours(self, x: int, y: int) -> Dict[str, List[int]]:
         res = {}
@@ -106,11 +106,11 @@ class Maze:
             "  1 2  ",
             "  1 222"
         ]
-        if self.leng < 7 or self.wid < 5:
+        if self.wid < 7 or self.height < 5:
             print('Not enough space to put the 42 pattern, continuing without')
             return
-        start_x = (self.leng - 7) // 2
-        start_y = (self.wid - 5) // 2
+        start_x = (self.wid - 7) // 2
+        start_y = (self.height - 5) // 2
         for j in range(5):
             for i in range(7):
                 if pattern[j][i] != ' ':
