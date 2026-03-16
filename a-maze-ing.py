@@ -2,7 +2,7 @@ from helpers import get_config
 from mlx import Mlx
 from typing import Any, List
 from source import MazeCell, Maze
-from generators import HuntAndKillGenerator
+from generators import HuntAndKillGenerator, PrimGenerator
 import sys
 
 
@@ -161,6 +161,16 @@ def main() -> None:
                 started = True
                 generator = HuntAndKillGenerator(
                     name="hunt-and-kill",
+                    entry=config['ENTRY'],
+                    out=config['EXIT'],
+                    height=config['HEIGHT'],
+                    wid=config['WIDTH'],
+                    seed=config['SEED'] if 'SEED' in config else None
+                )
+            if mode_selected == 'Prim':
+                started = True
+                generator = PrimGenerator(
+                    name="prim",
                     entry=config['ENTRY'],
                     out=config['EXIT'],
                     height=config['HEIGHT'],
