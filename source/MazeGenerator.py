@@ -46,3 +46,5 @@ class MazeGenerator(ABC):
         if direction == 'west':
             self.maze.body[y][x].pop_west()
             self.maze.body[y][x - 1].pop_east()
+
+    def make_imperfect(self) -> None:

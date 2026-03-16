@@ -115,3 +115,20 @@ class Maze:
             for i in range(7):
                 if pattern[j][i] != ' ':
                     self.body[start_y + j][start_x + i].is_ft = True
+
+    def __is_open_vertically(self, x: int, y: int) -> bool:
+        return not self.body[y][x] and not self.body[y + 1][x]
+
+    def __is_open_horizontally(self, x: int, y: int) -> bool:
+        return not self.body[y][x] and not self.body[y][x + 1]
+
+    def is_valid(self, top_x: int, top_y: int) -> bool:
+        for y in range(3):
+            for x in range(2):
+                if not (self.__is_open_horizontally(top_x + x, top_y + y)):
+                    return False
+        for y in range(2):
+            for x in range(3):
+                if not (self.__is_open_vertically(top_x + x, top_y + y)):
+                    return False
+        return True
