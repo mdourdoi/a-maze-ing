@@ -167,10 +167,10 @@ def main() -> None:
                     wid=config['WIDTH'],
                     seed=config['SEED'] if 'SEED' in config else None
                 )
-            if mode_selected == 'Prim':
+            if mode_selected == "Prim's algorithm":
                 started = True
                 generator = PrimGenerator(
-                    name="prim",
+                    name="Prim's algorithm",
                     entry=config['ENTRY'],
                     out=config['EXIT'],
                     height=config['HEIGHT'],
@@ -208,7 +208,7 @@ def main() -> None:
                 render_menu()
                 return
 
-        if mode_selected == 'Hunt and kill':
+        else:
             try:
                 for _ in range(3):
                     iteration = next(iterator)
