@@ -122,6 +122,28 @@ class Maze:
             res['west'] = [x - 1, y]
         return res
 
+    def get_unsolved_neighbours(self,
+                                x: int,
+                                y: int) -> List[tuple(int, int, str)]:
+        """ Return a Dict with the unsolved Cell from a position """
+        res: List[tuple(int, int, str)] = []
+        if (not self.is_top_border(y)
+            and not self.body[y - 1][x].is_solved
+                and not self.body[y - 1][x].is_ft):
+            res.append(tuple(x, y - 1, "north"))
+        if (not self.is_bot_border(y)
+            and not self.body[y + 1][x].is_solved
+                and not self.body[y + 1][x].is_ft):
+            res.append(tuple(x, y + 1, "south"))
+        if (not self.is_right_border(x)
+            and not self.body[y][x + 1].is_solved
+                and not self.body[y][x + 1].is_ft):
+            res.append(tuple(x + 1, y, "east"))
+        if (not self.is_left_border(x)
+            and not self.body[y][x - 1].is_solved
+                and not self.body[y][x - 1].is_ft):
+            res.append(tuple(x - 1, y, "west"))
+
     def __set_forty_two_pattern(self) -> None:
         pattern = [
             "1   222",

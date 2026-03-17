@@ -84,3 +84,27 @@ class MazeGenerator(ABC):
             else:
                 self.restore(cell[0], cell[1], direction)
                 valid_cells.remove([cell[0], cell[1]])
+
+    def solve(self) -> Generator:
+        """ Method to return a generator for the solver """
+        solved: bool = False
+        solution_path: list[tuple(int, int)] = list()
+        cur_x, cur_y = self.maze_entry[0], self.maze_entry[1]
+        self.maze.body[cur_y][cur_x].solve()
+        solution_path.insert(
+            0,
+            self.get_unsolved_neighbours(cur_x, cur_y))
+        while solved is False:
+            if len(solution_path[0]) == 0:
+                solution_path[0].pop()
+            cur_x = solution_path[0][0][0]
+            cur_y = solution_path[0][0][1]
+            if cur_x == self.out[0] and cur_y == self.out[1]:
+                solved = True
+                break
+            self.maze.body[cur_y][cur_x].solve()
+            solution_path.insert(
+                0,
+                self.get_unsolved_neighbours(cur_x, cur_y))
+            yield [x, y]
+
