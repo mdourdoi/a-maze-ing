@@ -32,6 +32,7 @@ def main() -> None:
     selected = 0
     blink_on = True
     generator = None
+    imperfector = None
     frame = 0
     iterator = None
     mode_selected = None
@@ -128,11 +129,17 @@ def main() -> None:
             m.mlx_put_image_to_window(
                 mlx, win, v_wall, cell_pos_x + cell_size_x, cell_pos_y)
 
+    def redraw_zone(x: int, y: int) -> None:
+        for j in range(max(0, y - 1), min(generator.height, y + 2)):
+            for i in range(max(0, x - 1), min(generator.wid, x + 2)):
+                draw_cell([i, j], generator.maze.body[j][i])
+
     def on_key(key: int, ctx: Any) -> None:
 
         nonlocal started, generator, iterator, selected, mode_selected
         nonlocal cell_size_x, cell_size_y, v_wall, h_wall, bg_image
         nonlocal start_image, end_image, ft_image
+        nonlocal imperfector
 
         # Exit with Esc
         if key == 65307:
@@ -197,9 +204,11 @@ def main() -> None:
                             generator.maze.body[j][i].is_start or
                                 generator.maze.body[j][i].is_end):
                             draw_cell([i, j], generator.maze.body[j][i])
+                if not config['PERFECT']:
+                    imperfector = generator.make_imperfect()
 
     def on_loop(ctx: Any) -> None:
-        nonlocal started, iterator, frame, blink_on
+        nonlocal started, iterator, frame, blink_on, imperfector, generator
 
         if mode_selected is None:
             frame += 1
@@ -210,12 +219,12 @@ def main() -> None:
 
         else:
             try:
-                for _ in range(3):
+                for _ in range(6):
                     iteration = next(iterator)
                     x = iteration[0]
                     y = iteration[1]
-                    draw_cell([x, y], generator.maze.body[y][x])
                     direction = iteration[2]
+                    draw_cell([x, y], generator.maze.body[y][x])
                     if direction == 'north':
                         draw_cell([x, y - 1], generator.maze.body[y - 1][x])
                     if direction == 'south':
@@ -225,7 +234,30 @@ def main() -> None:
                     if direction == 'west':
                         draw_cell([x - 1, y], generator.maze.body[y][x - 1])
             except StopIteration:
-                started = False
+                if imperfector is None:
+                    started = False
+                else:
+                    try:
+                        for _ in range(6):
+                            iteration = next(imperfector)
+                            x = iteration[0]
+                            y = iteration[1]
+                            direction = iteration[2]
+                            draw_cell([x, y], generator.maze.body[y][x])
+                            if direction == 'north':
+                                draw_cell(
+                                    [x, y - 1], generator.maze.body[y - 1][x])
+                            if direction == 'south':
+                                draw_cell(
+                                    [x, y + 1], generator.maze.body[y + 1][x])
+                            if direction == 'east':
+                                draw_cell(
+                                    [x + 1, y], generator.maze.body[y][x + 1])
+                            if direction == 'west':
+                                draw_cell(
+                                    [x - 1, y], generator.maze.body[y][x - 1])
+                    except StopIteration:
+                        ...
             return
 
     def render_menu():

@@ -98,6 +98,30 @@ class Maze:
             res['west'] = [x - 1, y]
         return res
 
+    def get_walled_neighbours(self, x: int, y: int) -> Dict[str, List[int]]:
+        res = {}
+        if (not self.is_top_border(y)
+            and self.body[y - 1][x].south
+            and self.body[y][x].north
+                and not self.body[y][x].is_ft):
+            res['north'] = [x, y - 1]
+        if (not self.is_bot_border(y)
+            and self.body[y + 1][x].north
+            and self.body[y][x].south
+                and not self.body[y][x].is_ft):
+            res['south'] = [x, y + 1]
+        if (not self.is_right_border(x)
+            and self.body[y][x + 1].west
+            and self.body[y][x].east
+                and not self.body[y][x + 1].is_ft):
+            res['east'] = [x + 1, y]
+        if (not self.is_left_border(x)
+            and self.body[y][x - 1].east
+            and self.body[y][x].west
+                and not self.body[y][x - 1].is_ft):
+            res['west'] = [x - 1, y]
+        return res
+
     def __set_forty_two_pattern(self) -> None:
         pattern = [
             "1   222",
@@ -117,18 +141,25 @@ class Maze:
                     self.body[start_y + j][start_x + i].is_ft = True
 
     def __is_open_vertically(self, x: int, y: int) -> bool:
-        return not self.body[y][x] and not self.body[y + 1][x]
+        return not self.body[y][x].south and not self.body[y + 1][x].north
 
     def __is_open_horizontally(self, x: int, y: int) -> bool:
-        return not self.body[y][x] and not self.body[y][x + 1]
+        return not self.body[y][x].east and not self.body[y][x + 1].west
 
-    def is_valid(self, top_x: int, top_y: int) -> bool:
-        for y in range(3):
-            for x in range(2):
-                if not (self.__is_open_horizontally(top_x + x, top_y + y)):
-                    return False
-        for y in range(2):
-            for x in range(3):
-                if not (self.__is_open_vertically(top_x + x, top_y + y)):
+    def is_valid_cell(self, x: int, y: int) -> bool:
+        for i in range(3):
+            for j in range(2):
+                if not (self.__is_open_horizontally(x - 1 + j, y - 1 + i)):
+                    return True
+        for i in range(3):
+            for j in range(2):
+                if not (self.__is_open_vertically(x - 1 + i, y - 1 + j)):
+                    return True
+        return False
+
+    def is_valid(self) -> bool:
+        for y in range(1, self.height - 1):
+            for x in range(1, self.wid - 1):
+                if not self.is_valid_cell(x, y):
                     return False
         return True
