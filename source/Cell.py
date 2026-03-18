@@ -59,3 +59,31 @@ class MazeCell():
             self.west = False
         else:
             raise WallError('The western wall is already open')
+
+    def create_north(self) -> None:
+        '''Create the northern wall, return WallError if there is a wall'''
+        if not self.north:
+            self.north = True
+        else:
+            raise WallError('The northern wall already exists')
+
+    def create_south(self) -> None:
+        '''Create the southern wall, return WallError if there is a wall'''
+        if not self.south:
+            self.south = True
+        else:
+            raise WallError('The southern wall already exists')
+
+    def create_east(self) -> None:
+        '''Create the eastern wall, return WallError if there is a wall'''
+        if not self.east:
+            self.east = True
+        else:
+            raise WallError('The eastern wall already exists')
+
+    def create_west(self) -> None:
+        '''Create the western wall, return WallError if there is a wall'''
+        if not self.west:
+            self.west = True
+        else:
+            raise WallError('The western wall already exists')
