@@ -112,7 +112,7 @@ class MazeGenerator(ABC):
                 while current in came_from:
                     path.append(current)
                     current = came_from[current]
-                return path[::-1]
+                    yield((current[1], current[0]))
 
             open_list.remove(current)
             for neighbor in self.maze.get_unsolved_neighbours(current[1], current[0]):
@@ -129,6 +129,3 @@ class MazeGenerator(ABC):
                         open_list.append((neighbor[1], neighbor[0]))
 
             yield((current[1], current[0]))
-
-        return None
-
