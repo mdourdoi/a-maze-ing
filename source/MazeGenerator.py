@@ -96,7 +96,7 @@ class MazeGenerator(ABC):
 
     def solve(self) -> Generator:
         """ Method to return a generator for the solver """
-        open_set = [(self.entry[1], self.entry[0])]
+        open_list = [(self.entry[1], self.entry[0])]
         came_from = {}
 
         g_score = {(self.entry[1], self.entry[0]): 0}
@@ -104,17 +104,31 @@ class MazeGenerator(ABC):
             (self.entry[1], self.entry[0]),
             (self.out[1], self.out[0]))}
 
-        while open_set:
-            current = min(open_set, key=lambda x: f_score.get(x, float('inf')))
+        while open_list:
+            current = min(open_list, key=lambda x: f_score.get(x, float('inf')))
 
             if current == (self.end[1], self.end[0]):
                 path = []
                 while current in came_from:
                     path.append(current)
                     current = came_from[current]
+                return path[::-1]
 
+            open_list.remove(current)
+            for neighbor in self.maze.get_unsolved_neighbours(current[1], current[0]):
+                tentative_g = g_score[current] + 1
 
+                if tentative_g < g_score.get(neighbor, float('inf')):
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g
+                    f_score[neighbor] = tentative_g + self.calculate_heuristic(
+                        (neighbor[1], neighbor[0]),
+                        (self.out[1], self.out[0]))
 
-    def find_path(self) -> Dict:
-        """ Method to find the path in this """
-        start_cell = tuple(self.entry[0], self.entry[1])
+                    if (neighbor[1], neighbor[0]) not in open_list:
+                        open_list.append((neighbor[1], neighbor[0]))
+
+            yield((current[1], current[0]))
+
+        return None
+
