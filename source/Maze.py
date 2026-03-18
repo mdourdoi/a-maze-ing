@@ -138,11 +138,17 @@ class Maze:
         if (not self.is_right_border(x)
             and not self.body[y][x + 1].is_solved
                 and not self.body[y][x + 1].is_ft):
-            res.append(tuple(x + 1, y, "east"))
+            res.append(tuple(x + 1, y, "east")
         if (not self.is_left_border(x)
             and not self.body[y][x - 1].is_solved
                 and not self.body[y][x - 1].is_ft):
             res.append(tuple(x - 1, y, "west"))
+
+    def __set_cost_score(self) -> None:
+        """ Set the score of each Cell of the maze for the solving """
+        for x in self.body:
+            for y in x:
+                y.calculate_score()
 
     def __set_forty_two_pattern(self) -> None:
         pattern = [

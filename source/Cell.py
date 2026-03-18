@@ -24,6 +24,9 @@ class MazeCell():
         self.is_visited = is_visited
         self.is_ft = is_ft
         self.is_solved = is_solved
+        self.g: int = 999           # nb of movement to make from the start to this Cell
+        self.heuristic: int = 999   # dist (cols + row) from this Cell to goal
+        self.score: int = 999       # Sum of (g and heuristic), lowest the score is, better is the choice
 
     def set_start(self) -> None:
         self.is_start = True
@@ -33,6 +36,21 @@ class MazeCell():
 
     def visit(self) -> None:
         self.is_visited = True
+
+    def reset_g_value_update(self, g_value: int) -> None:
+        """ Set g_value for this Cell and update the Score of this cell """
+        self.g = g_value
+        self.score = self.g + self.heuristic
+
+    def calculate_score(self,
+                        start: tuple(int, int),
+                        goal: tuple(int, int),
+                        position: tuple(int, int)) -> None:
+        """ Calculate the score and heuristic value for this cell """
+        self.heuristic = abs(
+            (goal[0] - position[0]) + (goal[1] - position[1])
+        )
+        self.score = self.g + self.heuristic
 
     def solve(self) -> None:
         """ Method to set the actual Cell to solved  """

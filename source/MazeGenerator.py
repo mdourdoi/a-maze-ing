@@ -108,3 +108,15 @@ class MazeGenerator(ABC):
                 self.get_unsolved_neighbours(cur_x, cur_y))
             yield [x, y]
 
+    def calculate_heuristic(self,
+                            current_position: tuple(int, int),
+                            next_position: tuple(int, int)) -> int:
+        """ Method to calculate the heuristic value of two position """
+        return sum(abs(next_position[0] - current_position[0]),
+                   abs(next_position[1] - current_position[1])
+        )
+
+    def solve(self) -> Generator:
+        """ Method to return a generator for the solver """
+    
+
