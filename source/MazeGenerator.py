@@ -2,6 +2,7 @@ from .Maze import Maze
 from abc import ABC, abstractmethod
 from typing import List, Generator
 from math import ceil
+import heapq
 import random
 
 
@@ -85,29 +86,6 @@ class MazeGenerator(ABC):
                 self.restore(cell[0], cell[1], direction)
                 valid_cells.remove([cell[0], cell[1]])
 
-    def solve(self) -> Generator:
-        """ Method to return a generator for the solver """
-        solved: bool = False
-        solution_path: list[tuple(int, int)] = list()
-        cur_x, cur_y = self.maze_entry[0], self.maze_entry[1]
-        self.maze.body[cur_y][cur_x].solve()
-        solution_path.insert(
-            0,
-            self.get_unsolved_neighbours(cur_x, cur_y))
-        while solved is False:
-            if len(solution_path[0]) == 0:
-                solution_path[0].pop()
-            cur_x = solution_path[0][0][0]
-            cur_y = solution_path[0][0][1]
-            if cur_x == self.out[0] and cur_y == self.out[1]:
-                solved = True
-                break
-            self.maze.body[cur_y][cur_x].solve()
-            solution_path.insert(
-                0,
-                self.get_unsolved_neighbours(cur_x, cur_y))
-            yield [x, y]
-
     def calculate_heuristic(self,
                             current_position: tuple(int, int),
                             next_position: tuple(int, int)) -> int:
@@ -118,11 +96,25 @@ class MazeGenerator(ABC):
 
     def solve(self) -> Generator:
         """ Method to return a generator for the solver """
-        start: MazeCell = self.body[self.entry[1]][self.entry[0]]
+        open_set = [(self.entry[1], self.entry[0])]
+        came_from = {}
+
+        g_score = {(self.entry[1], self.entry[0]): 0}
+        f_score = {(self.entry[1], self.entry[0]): self.calculate_heuristic(
+            (self.entry[1], self.entry[0]),
+            (self.out[1], self.out[0]))}
+
+        while open_set:
+            current = min(open_set, key=lambda x: f_score.get(x, float('inf')))
+
+            if current == (self.end[1], self.end[0]):
+                path = []
+                while current in came_from:
+                    path.append(current)
+                    current = came_from[current]
 
 
 
-
-    def find_path(self) -> Dict()
+    def find_path(self) -> Dict:
         """ Method to find the path in this """
         start_cell = tuple(self.entry[0], self.entry[1])

@@ -137,20 +137,25 @@ class Maze:
         res: List[tuple(int, int, str)] = []
         if (not self.is_top_border(y)
             and not self.body[y - 1][x].is_solved
-                and not self.body[y - 1][x].is_ft):
+                and not self.body[y - 1][x].is_ft
+                    and not self.body[y - 1][x].north):
             res.append(tuple(x, y - 1, "north"))
         if (not self.is_bot_border(y)
             and not self.body[y + 1][x].is_solved
-                and not self.body[y + 1][x].is_ft):
+                and not self.body[y + 1][x].is_ft
+                    and not self.body[y + 1][x].south):
             res.append(tuple(x, y + 1, "south"))
         if (not self.is_right_border(x)
             and not self.body[y][x + 1].is_solved
-                and not self.body[y][x + 1].is_ft):
-            res.append(tuple(x + 1, y, "east")
+                and not self.body[y][x + 1].is_ft
+                    and not self.body[y][x + 1].east):
+            res.append(tuple(x + 1, y, "east"))
         if (not self.is_left_border(x)
             and not self.body[y][x - 1].is_solved
-                and not self.body[y][x - 1].is_ft):
+                and not self.body[y][x - 1].is_ft
+                    and not self.body[y][x - 1].west):
             res.append(tuple(x - 1, y, "west"))
+        return res
 
     def __set_cost_score(self) -> None:
         """ Set the score of each Cell of the maze for the solving """
