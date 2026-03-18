@@ -122,6 +122,14 @@ class Maze:
             res['west'] = [x - 1, y]
         return res
 
+    def calculate_heuristic(self,
+                            current_position: tuple(int, int),
+                            next_position: tuple(int, int)) -> int:
+        """ Method to calculate the heuristic value of two position """
+        return sum(abs(next_position[0] - current_position[0]),
+                   abs(next_position[1] - current_position[1])
+        )
+
     def get_unsolved_neighbours(self,
                                 x: int,
                                 y: int) -> List[tuple(int, int, str)]:

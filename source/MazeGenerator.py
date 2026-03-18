@@ -118,5 +118,11 @@ class MazeGenerator(ABC):
 
     def solve(self) -> Generator:
         """ Method to return a generator for the solver """
-    
+        start: MazeCell = self.body[self.entry[1]][self.entry[0]]
 
+
+
+
+    def find_path(self) -> Dict()
+        """ Method to find the path in this """
+        start_cell = tuple(self.entry[0], self.entry[1])
