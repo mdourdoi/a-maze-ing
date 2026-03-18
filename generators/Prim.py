@@ -32,4 +32,4 @@ class PrimGenerator(MazeGenerator):
                     self.maze.get_valid_neighbours(
                         x, y).values())}
             frontier = frontier | new_frontier
-            yield [x, y, direction]
+            yield [x, y]

@@ -223,38 +223,21 @@ def main() -> None:
 
         else:
             try:
-                for _ in range(40):
+                for _ in range(5):
                     iteration = next(iterator)
                     x = iteration[0]
                     y = iteration[1]
-                    direction = iteration[2]
                     redraw_zone(x, y)
-                    if direction == 'north':
-                        redraw_zone(x, y - 1)
-                    if direction == 'south':
-                        redraw_zone(x, y + 1)
-                    if direction == 'east':
-                        redraw_zone(x + 1, y)
-                    if direction == 'west':
-                        redraw_zone(x - 1, y)
             except StopIteration:
                 if imperfector is None:
                     started = False
                 else:
                     try:
-                        for _ in range(40):
+                        for _ in range(5):
                             iteration = next(imperfector)
                             x = iteration[0]
                             y = iteration[1]
-                            direction = iteration[2]
-                            if direction == 'north':
-                                redraw_zone(x, y - 1)
-                            if direction == 'south':
-                                redraw_zone(x, y + 1)
-                            if direction == 'east':
-                                redraw_zone(x + 1, y)
-                            if direction == 'west':
-                                redraw_zone(x - 1, y)
+                            redraw_zone(x, y)
                     except StopIteration:
                         ...
             return
