@@ -89,7 +89,8 @@ def main() -> None:
 
     def draw_cell(
             pos: List[int],
-            cell: MazeCell) -> None:
+            cell: MazeCell,
+            draw_background: bool = True) -> None:
 
         nonlocal cell_size_x, cell_size_y
         nonlocal h_wall, v_wall, bg_image, start_image, end_image, ft_image
@@ -97,26 +98,19 @@ def main() -> None:
         cell_pos_x = pos[0] * cell_size_x
         cell_pos_y = pos[1] * cell_size_y
 
-        if cell.is_ft:
-            m.mlx_put_image_to_window(
-                mlx, win, ft_image, cell_pos_x, cell_pos_y)
-            m.mlx_put_image_to_window(mlx, win, h_wall, cell_pos_x, cell_pos_y)
-            m.mlx_put_image_to_window(
-                mlx, win, h_wall, cell_pos_x, cell_pos_y + cell_size_y)
-            m.mlx_put_image_to_window(mlx, win, v_wall, cell_pos_x, cell_pos_y)
-            m.mlx_put_image_to_window(
-                mlx, win, v_wall, cell_pos_x + cell_size_x, cell_pos_y)
-            return
-
-        m.mlx_put_image_to_window(mlx, win, bg_image, cell_pos_x, cell_pos_y)
-
-        if cell.is_start:
-            m.mlx_put_image_to_window(
-                mlx, win, start_image, cell_pos_x, cell_pos_y)
-
-        if cell.is_end:
-            m.mlx_put_image_to_window(
-                mlx, win, end_image, cell_pos_x, cell_pos_y)
+        if draw_background:
+            if cell.is_ft:
+                m.mlx_put_image_to_window(
+                    mlx, win, ft_image, cell_pos_x, cell_pos_y)
+            elif cell.is_start:
+                m.mlx_put_image_to_window(
+                    mlx, win, start_image, cell_pos_x, cell_pos_y)
+            elif cell.is_end:
+                m.mlx_put_image_to_window(
+                    mlx, win, end_image, cell_pos_x, cell_pos_y)
+            else:
+                m.mlx_put_image_to_window(
+                    mlx, win, bg_image, cell_pos_x, cell_pos_y)
 
         if cell.north:
             m.mlx_put_image_to_window(mlx, win, h_wall, cell_pos_x, cell_pos_y)
@@ -130,9 +124,15 @@ def main() -> None:
                 mlx, win, v_wall, cell_pos_x + cell_size_x, cell_pos_y)
 
     def redraw_zone(x: int, y: int) -> None:
+        cells = []
         for j in range(max(0, y - 1), min(generator.height, y + 2)):
             for i in range(max(0, x - 1), min(generator.wid, x + 2)):
-                draw_cell([i, j], generator.maze.body[j][i])
+                if generator.maze.body[j][i].is_visited:
+                    cells.append((i, j))
+        for i, j in cells:
+            draw_cell([i, j], generator.maze.body[j][i])
+        for i, j in cells:
+            draw_cell([i, j], generator.maze.body[j][i], False)
 
     def on_key(key: int, ctx: Any) -> None:
 
@@ -219,43 +219,38 @@ def main() -> None:
 
         else:
             try:
-                for _ in range(6):
+                for _ in range(30):
                     iteration = next(iterator)
                     x = iteration[0]
                     y = iteration[1]
                     direction = iteration[2]
                     draw_cell([x, y], generator.maze.body[y][x])
                     if direction == 'north':
-                        draw_cell([x, y - 1], generator.maze.body[y - 1][x])
+                        redraw_zone(x, y - 1)
                     if direction == 'south':
-                        draw_cell([x, y + 1], generator.maze.body[y + 1][x])
+                        redraw_zone(x, y + 1)
                     if direction == 'east':
-                        draw_cell([x + 1, y], generator.maze.body[y][x + 1])
+                        redraw_zone(x + 1, y)
                     if direction == 'west':
-                        draw_cell([x - 1, y], generator.maze.body[y][x - 1])
+                        redraw_zone(x - 1, y)
             except StopIteration:
                 if imperfector is None:
                     started = False
                 else:
                     try:
-                        for _ in range(6):
+                        for _ in range(30):
                             iteration = next(imperfector)
                             x = iteration[0]
                             y = iteration[1]
                             direction = iteration[2]
-                            draw_cell([x, y], generator.maze.body[y][x])
                             if direction == 'north':
-                                draw_cell(
-                                    [x, y - 1], generator.maze.body[y - 1][x])
+                                redraw_zone(x, y - 1)
                             if direction == 'south':
-                                draw_cell(
-                                    [x, y + 1], generator.maze.body[y + 1][x])
+                                redraw_zone(x, y + 1)
                             if direction == 'east':
-                                draw_cell(
-                                    [x + 1, y], generator.maze.body[y][x + 1])
+                                redraw_zone(x + 1, y)
                             if direction == 'west':
-                                draw_cell(
-                                    [x - 1, y], generator.maze.body[y][x - 1])
+                                redraw_zone(x - 1, y)
                     except StopIteration:
                         ...
             return
