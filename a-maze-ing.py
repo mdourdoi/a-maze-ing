@@ -127,10 +127,14 @@ def main() -> None:
         cells = []
         for j in range(max(0, y - 1), min(generator.height, y + 2)):
             for i in range(max(0, x - 1), min(generator.wid, x + 2)):
-                if generator.maze.body[j][i].is_visited:
+                cell = generator.maze.body[j][i]
+                if (cell.is_visited or cell.is_ft
+                        or cell.is_start or cell.is_end):
                     cells.append((i, j))
+        draw_cell([x, y], generator.maze.body[y][x])
         for i, j in cells:
             draw_cell([i, j], generator.maze.body[j][i])
+        draw_cell([x, y], generator.maze.body[y][x], False)
         for i, j in cells:
             draw_cell([i, j], generator.maze.body[j][i], False)
 
@@ -219,12 +223,12 @@ def main() -> None:
 
         else:
             try:
-                for _ in range(30):
+                for _ in range(40):
                     iteration = next(iterator)
                     x = iteration[0]
                     y = iteration[1]
                     direction = iteration[2]
-                    draw_cell([x, y], generator.maze.body[y][x])
+                    redraw_zone(x, y)
                     if direction == 'north':
                         redraw_zone(x, y - 1)
                     if direction == 'south':
@@ -238,7 +242,7 @@ def main() -> None:
                     started = False
                 else:
                     try:
-                        for _ in range(30):
+                        for _ in range(40):
                             iteration = next(imperfector)
                             x = iteration[0]
                             y = iteration[1]

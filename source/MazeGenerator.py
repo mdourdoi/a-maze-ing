@@ -1,7 +1,7 @@
 from .Maze import Maze
 from abc import ABC, abstractmethod
 from typing import List, Generator
-from math import ceil, sqrt
+from math import ceil
 import random
 
 
@@ -63,12 +63,10 @@ class MazeGenerator(ABC):
             self.maze.body[y][x - 1].create_east()
 
     def make_imperfect(self) -> Generator:
-        # to_break = 2 * ceil(sqrt(self.height * self.wid))
         to_break = ceil(self.height * self.wid / 5)
-        valid_cells = [[x,
-                        y] for x in range(1,
-                       self.wid - 1) for y in range(1,
-                                                    self.height - 1) if not self.maze.body[y][x].is_ft]
+        valid_cells = [[x, y] for x in range(1, self.wid - 1)
+                       for y in range(1, self.height - 1)
+                       if not self.maze.body[y][x].is_ft]
         while valid_cells and to_break:
             cell = self.random.choice(valid_cells)
             walled_neighbours = self.maze.get_walled_neighbours(

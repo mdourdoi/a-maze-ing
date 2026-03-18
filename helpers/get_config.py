@@ -29,6 +29,9 @@ def get_config(config_file: str) -> Dict[str, Any] | None:
     else:
         raise ValueError("PERFECT must be 'True' or 'False'")
     if 'SEED' in config:
-        config['SEED'] = int(config['SEED'])
+        if config['SEED'] == 'None':
+            config['SEED'] = None
+        else:
+            config['SEED'] = int(config['SEED'])
     return config
 
