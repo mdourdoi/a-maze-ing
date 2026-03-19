@@ -8,6 +8,20 @@ import sys
 
 def main() -> None:
 
+    maze_width = 1200
+    maze_height = 800
+    side_panel_width = 360
+    window_width = maze_width + side_panel_width
+    window_height = maze_height
+    panel_x = maze_width + 24
+    command_hints = [
+        'ENTER - Solve the maze',
+        'H - Reload with Hunt And Kill',
+        "P - Reload with Prim's algorithm",
+        'W - Rotate wall colors',
+        'F - Rotate 42 colors',
+        'Esc - Quit']
+
     config_file = sys.argv
     if len(config_file) != 2:
         print('Invalid arguments. ', end='')
@@ -26,7 +40,8 @@ def main() -> None:
 
     m = Mlx()
     mlx = m.mlx_init()
-    win = m.mlx_new_window(mlx, 1200 + 1, 800 + 1, 'Maze renderer')
+    win = m.mlx_new_window(
+        mlx, window_width + 1, window_height + 1, 'Maze renderer')
 
     menu_items = ["Prim's algorithm", 'Hunt and kill', 'Quit']
     selected = 0
@@ -35,6 +50,10 @@ def main() -> None:
     imperfector = None
     frame = 0
     iterator = None
+    generated = False
+    solver = None
+    solving = False
+    solved = False
     mode_selected = None
     started = False
     spongebob_path = './assets/spongebob.png'
@@ -44,6 +63,8 @@ def main() -> None:
     h_wall = None
     v_wall = None
     bg_image = None
+    solving_img = None
+    solved_img = None
     start_image = None
     end_image = None
     ft_image = None
@@ -62,7 +83,7 @@ def main() -> None:
 
     def destroy_runtime_images() -> None:
         nonlocal img, h_wall, v_wall, bg_image
-        nonlocal start_image, end_image, ft_image
+        nonlocal start_image, end_image, ft_image, solving_img, solved_img
 
         if img is not None:
             m.mlx_destroy_image(mlx, img)
@@ -86,6 +107,12 @@ def main() -> None:
         if ft_image is not None:
             m.mlx_destroy_image(mlx, ft_image)
             ft_image = None
+        if solving_img is not None:
+            m.mlx_destroy_image(mlx, solving_img)
+            solving_img = None
+        if solved_img is not None:
+            m.mlx_destroy_image(mlx, solved_img)
+            solved_img = None
 
     def draw_cell(
             pos: List[int],
@@ -94,6 +121,7 @@ def main() -> None:
 
         nonlocal cell_size_x, cell_size_y
         nonlocal h_wall, v_wall, bg_image, start_image, end_image, ft_image
+        nonlocal solving_img, solved_img
 
         cell_pos_x = pos[0] * cell_size_x
         cell_pos_y = pos[1] * cell_size_y
@@ -102,15 +130,22 @@ def main() -> None:
             if cell.is_ft:
                 m.mlx_put_image_to_window(
                     mlx, win, ft_image, cell_pos_x, cell_pos_y)
-            elif cell.is_start:
+            elif cell.is_start and not cell.is_solved:
                 m.mlx_put_image_to_window(
                     mlx, win, start_image, cell_pos_x, cell_pos_y)
-            elif cell.is_end:
+            elif cell.is_end and not cell.is_solved:
                 m.mlx_put_image_to_window(
                     mlx, win, end_image, cell_pos_x, cell_pos_y)
             else:
-                m.mlx_put_image_to_window(
-                    mlx, win, bg_image, cell_pos_x, cell_pos_y)
+                if cell.is_solved and not cell.is_solution:
+                    m.mlx_put_image_to_window(
+                        mlx, win, solving_img, cell_pos_x, cell_pos_y)
+                elif cell.is_solved and cell.is_solution:
+                    m.mlx_put_image_to_window(
+                        mlx, win, solved_img, cell_pos_x, cell_pos_y)
+                else:
+                    m.mlx_put_image_to_window(
+                        mlx, win, bg_image, cell_pos_x, cell_pos_y)
 
         if cell.north:
             m.mlx_put_image_to_window(mlx, win, h_wall, cell_pos_x, cell_pos_y)
@@ -138,16 +173,30 @@ def main() -> None:
         for i, j in cells:
             draw_cell([i, j], generator.maze.body[j][i], False)
 
+    def render_commands_panel() -> None:
+        title_color = 0x00FFD166
+        text_color = 0x00CCCCCC
+
+        m.mlx_string_put(mlx, win, panel_x, 60, title_color, 'Commands')
+        for index, label in enumerate(command_hints):
+            y = 110 + index * 32
+            m.mlx_string_put(mlx, win, panel_x, y, text_color, label)
+
     def on_key(key: int, ctx: Any) -> None:
 
         nonlocal started, generator, iterator, selected, mode_selected
         nonlocal cell_size_x, cell_size_y, v_wall, h_wall, bg_image
         nonlocal start_image, end_image, ft_image
-        nonlocal imperfector
+        nonlocal imperfector, solver, solving, solving_img, solved_img
+        nonlocal generated
 
         # Exit with Esc
         if key == 65307:
             m.mlx_loop_exit(mlx)
+
+        if key == 65293 and mode_selected and generated and not solving:
+            solving = True
+            print("Solving...")
 
         # Menu selection
         if key == 65362 and not mode_selected:
@@ -189,8 +238,9 @@ def main() -> None:
                     seed=config['SEED'] if 'SEED' in config else None
                 )
             if started:
-                cell_size_x = 1200 // generator.wid
-                cell_size_y = 800 // generator.height
+                render_commands_panel()
+                cell_size_x = maze_width // generator.wid
+                cell_size_y = maze_height // generator.height
                 h_wall = make_solid_image(cell_size_x + 1, 1, 0xFFFF0000)
                 v_wall = make_solid_image(1, cell_size_y + 1, 0xFFFF0000)
                 bg_image = make_solid_image(
@@ -210,9 +260,16 @@ def main() -> None:
                             draw_cell([i, j], generator.maze.body[j][i])
                 if not config['PERFECT']:
                     imperfector = generator.make_imperfect()
+                solving_img = make_solid_image(
+                    cell_size_x, cell_size_y, 0x55FFFF00)
+                solved_img = make_solid_image(
+                    cell_size_x, cell_size_y, 0xFF3B2077)
+                solver = generator.solve()
 
     def on_loop(ctx: Any) -> None:
-        nonlocal started, iterator, frame, blink_on, imperfector, generator
+        nonlocal started, iterator, frame, blink_on
+        nonlocal imperfector, generator, generated
+        nonlocal solved
 
         if mode_selected is None:
             frame += 1
@@ -221,9 +278,9 @@ def main() -> None:
                 render_menu()
                 return
 
-        else:
+        elif mode_selected and not solving:
             try:
-                for _ in range(5):
+                for _ in range(60):
                     iteration = next(iterator)
                     x = iteration[0]
                     y = iteration[1]
@@ -233,19 +290,34 @@ def main() -> None:
                     started = False
                 else:
                     try:
-                        for _ in range(5):
+                        for _ in range(60):
                             iteration = next(imperfector)
                             x = iteration[0]
                             y = iteration[1]
                             redraw_zone(x, y)
                     except StopIteration:
                         ...
-            return
+                generated = True
+
+        elif solving:
+            try:
+                iteration = next(solver)
+                x = iteration[0]
+                y = iteration[1]
+                draw_cell([x, y], generator.maze.body[y][x])
+            except StopIteration:
+                if not solved:
+                    solved = True
+                    print('Solved !')
 
     def render_menu():
         m.mlx_clear_window(mlx, win)
         m.mlx_put_image_to_window(
-            mlx, win, img, (1200 - w) // 2, (800 - h - 200) // 2)
+            mlx,
+            win,
+            img,
+            (window_width - w) // 2,
+            (window_height - h - 200) // 2)
         for i, label in enumerate(menu_items):
             y = 600 + i * 40
             is_sel = (i == selected)

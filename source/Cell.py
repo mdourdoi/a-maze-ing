@@ -1,4 +1,5 @@
 from .errors import WallError
+from typing import Tuple
 
 
 class MazeCell():
@@ -12,7 +13,8 @@ class MazeCell():
                  is_end: bool = False,
                  is_visited: bool = False,
                  is_ft: bool = False,
-                 is_solved: bool = False) -> None:
+                 is_solved: bool = False,
+                 is_solution: bool = False) -> None:
         '''Initializes the cell.
         True means the cell has a wall in that direction'''
         self.north = north
@@ -24,9 +26,7 @@ class MazeCell():
         self.is_visited = is_visited
         self.is_ft = is_ft
         self.is_solved = is_solved
-        self.g: int = 999           # nb of movement to make from the start to this Cell
-        self.heuristic: int = 999   # dist (cols + row) from this Cell to goal
-        self.score: int = 999       # Sum of (g and heuristic), lowest the score is, better is the choice
+        self.is_solution = is_solution
 
     def set_start(self) -> None:
         self.is_start = True
@@ -43,16 +43,16 @@ class MazeCell():
         self.score = self.g + self.heuristic
 
     def calculate_score(self,
-                        start: tuple(int, int),
-                        goal: tuple(int, int),
-                        position: tuple(int, int)) -> None:
+                        start: Tuple[int, int],
+                        goal: Tuple[int, int],
+                        position: Tuple[int, int]) -> None:
         """ Calculate the score and heuristic value for this cell """
         self.heuristic = abs(
             (goal[0] - position[0]) + (goal[1] - position[1])
         )
         self.score = self.g + self.heuristic
 
-    def solve(self) -> None:
+    def set_solved(self) -> None:
         """ Method to set the actual Cell to solved  """
         self.is_solved = True
 

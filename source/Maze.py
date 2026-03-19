@@ -1,5 +1,5 @@
 from .Cell import MazeCell
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 
 class Maze:
@@ -45,6 +45,10 @@ class Maze:
         self.entry: List[int] = entry
         self.out: List[int] = out
         self.__set_forty_two_pattern()
+        if self.body[entry[1]][entry[0]].is_ft:
+            raise ValueError("The entry can't be in the 42 in the middle")
+        if self.body[out[1]][out[0]].is_ft:
+            raise ValueError("The exit can't be in the 42 in the middle")
 
     def is_top_border(self, y: int) -> bool:
         return y == 0
@@ -122,46 +126,36 @@ class Maze:
             res['west'] = [x - 1, y]
         return res
 
-    def calculate_heuristic(self,
-                            current_position: tuple(int, int),
-                            next_position: tuple(int, int)) -> int:
-        """ Method to calculate the heuristic value of two position """
-        return sum(abs(next_position[0] - current_position[0]),
-                   abs(next_position[1] - current_position[1])
-        )
-
     def get_unsolved_neighbours(self,
                                 x: int,
-                                y: int) -> List[tuple(int, int, str)]:
+                                y: int) -> List[Tuple[int, int]]:
         """ Return a Dict with the unsolved Cell from a position """
-        res: List[tuple(int, int, str)] = []
+        res = {}
         if (not self.is_top_border(y)
             and not self.body[y - 1][x].is_solved
-                and not self.body[y - 1][x].is_ft
-                    and not self.body[y - 1][x].north):
-            res.append(tuple(x, y - 1, "north"))
+                and not self.body[y][x].is_ft
+                and not self.body[y - 1][x].south
+                and not self.body[y][x].north):
+            res['north'] = (x, y - 1)
         if (not self.is_bot_border(y)
             and not self.body[y + 1][x].is_solved
                 and not self.body[y + 1][x].is_ft
-                    and not self.body[y + 1][x].south):
-            res.append(tuple(x, y + 1, "south"))
+                and not self.body[y + 1][x].north
+                and not self.body[y][x].south):
+            res['south'] = (x, y + 1)
         if (not self.is_right_border(x)
             and not self.body[y][x + 1].is_solved
                 and not self.body[y][x + 1].is_ft
-                    and not self.body[y][x + 1].east):
-            res.append(tuple(x + 1, y, "east"))
+                and not self.body[y][x + 1].west
+                and not self.body[y][x].east):
+            res['east'] = (x + 1, y)
         if (not self.is_left_border(x)
             and not self.body[y][x - 1].is_solved
                 and not self.body[y][x - 1].is_ft
-                    and not self.body[y][x - 1].west):
-            res.append(tuple(x - 1, y, "west"))
+                and not self.body[y][x - 1].east
+                and not self.body[y][x].west):
+            res['west'] = (x - 1, y)
         return res
-
-    def __set_cost_score(self) -> None:
-        """ Set the score of each Cell of the maze for the solving """
-        for x in self.body:
-            for y in x:
-                y.calculate_score()
 
     def __set_forty_two_pattern(self) -> None:
         pattern = [
@@ -204,3 +198,8 @@ class Maze:
                 if not self.is_valid_cell(x, y):
                     return False
         return True
+
+    # def set_unsolved(self) -> None:
+    #     for j in self.body:
+    #         for i in j:
+    #             i.is_solved = False
