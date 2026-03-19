@@ -135,4 +135,12 @@ class MazeGenerator(ABC):
                     if (neighbor[0], neighbor[1]) not in open_list:
                         open_list.append((neighbor[0], neighbor[1]))
 
+<<<<<<< HEAD
             yield ((current[0], current[1]))
+=======
+            yield((current[1], current[0]))
+
+    def output(self) -> None:
+        self.maze.output_maze()
+
+>>>>>>> 938e70b (output file)

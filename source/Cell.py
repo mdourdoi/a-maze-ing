@@ -37,20 +37,18 @@ class MazeCell():
     def visit(self) -> None:
         self.is_visited = True
 
-    def reset_g_value_update(self, g_value: int) -> None:
-        """ Set g_value for this Cell and update the Score of this cell """
-        self.g = g_value
-        self.score = self.g + self.heuristic
-
-    def calculate_score(self,
-                        start: Tuple[int, int],
-                        goal: Tuple[int, int],
-                        position: Tuple[int, int]) -> None:
-        """ Calculate the score and heuristic value for this cell """
-        self.heuristic = abs(
-            (goal[0] - position[0]) + (goal[1] - position[1])
-        )
-        self.score = self.g + self.heuristic
+    def get_bin_value(self) -> int:
+        value: int = 0
+        if self.north:
+            value += 1
+        if self.east:
+            value += 2
+        if self.south:
+            value += 4
+        if self.west:
+            value += 8
+        print(f"val {value}")
+        return value
 
     def set_solved(self) -> None:
         """ Method to set the actual Cell to solved  """
