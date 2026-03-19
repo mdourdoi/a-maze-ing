@@ -1,6 +1,6 @@
 from .Maze import Maze
 from abc import ABC, abstractmethod
-from typing import List, Generator
+from typing import List, Generator, Tuple
 from math import ceil
 import random
 
@@ -17,10 +17,6 @@ class MazeGenerator(ABC):
         if not str(name):
             raise ValueError('Please input a valid name')
         maze = Maze(height, wid, entry, out)
-        if maze.body[entry[1]][entry[0]].is_ft:
-            raise ValueError("The entry can't be in the 42 in the middle")
-        if maze.body[out[1]][out[0]].is_ft:
-            raise ValueError("The exit can't be in the 42 in the middle")
         self.name = str(name)
         self.maze = maze
         self.maze.body[entry[1]][entry[0]].is_start = True
@@ -29,6 +25,8 @@ class MazeGenerator(ABC):
         self.wid = wid
         self.seed = seed
         self.random = random.Random(seed)
+        self.is_solved = False
+        self.solution = []
 
     @abstractmethod
     def generate_maze(self) -> Generator:
@@ -84,3 +82,57 @@ class MazeGenerator(ABC):
             else:
                 self.restore(cell[0], cell[1], direction)
                 valid_cells.remove([cell[0], cell[1]])
+
+    def calculate_heuristic(self,
+                            current_position: Tuple[int, int],
+                            next_position: Tuple[int, int]) -> float:
+        """ Method to calculate the heuristic value of two position """
+        return abs(next_position[0] - current_position[0]) + \
+            abs(next_position[1] - current_position[1])
+
+    def solve(self) -> Generator:
+        """ Method to return a generator for the solver """
+        open_list = [(self.maze.entry[0], self.maze.entry[1])]
+        came_from = {}
+
+        g_score = {(self.maze.entry[0], self.maze.entry[1]): 0}
+        f_score = {(self.maze.entry[0], self.maze.entry[1]):
+                   self.calculate_heuristic(
+            (self.maze.entry[0], self.maze.entry[1]),
+            (self.maze.out[0], self.maze.out[1]))}
+
+        while open_list:
+            current = min(
+                open_list, key=lambda x: f_score.get(x))
+            self.maze.body[current[1]][current[0]].set_solved()
+
+            if current == (self.maze.out[0], self.maze.out[1]):
+                self.is_solved = True
+                self.maze.body[current[1]][current[0]].set_solved()
+                path = []
+                while current in came_from:
+                    path.append(current)
+                    current = came_from[current]
+                path.append((self.maze.entry[0], self.maze.entry[1]))
+                self.solution = reversed(path)
+                for data in self.solution:
+                    self.maze.body[data[1]][data[0]].is_solution = True
+                    yield (data[0], data[1])
+                return
+
+            open_list.remove(current)
+            for neighbor in self.maze.get_unsolved_neighbours(
+                    current[0], current[1]).values():
+                tentative_g = g_score[current] + 1
+
+                if tentative_g < g_score.get(neighbor, float('inf')):
+                    came_from[neighbor] = current
+                    g_score[neighbor] = tentative_g
+                    f_score[neighbor] = tentative_g + self.calculate_heuristic(
+                        (neighbor[0], neighbor[1]),
+                        (self.maze.out[0], self.maze.out[1]))
+
+                    if (neighbor[0], neighbor[1]) not in open_list:
+                        open_list.append((neighbor[0], neighbor[1]))
+
+            yield ((current[0], current[1]))

@@ -1,5 +1,5 @@
 from .Cell import MazeCell
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 
 class Maze:
@@ -45,6 +45,10 @@ class Maze:
         self.entry: List[int] = entry
         self.out: List[int] = out
         self.__set_forty_two_pattern()
+        if self.body[entry[1]][entry[0]].is_ft:
+            raise ValueError("The entry can't be in the 42 in the middle")
+        if self.body[out[1]][out[0]].is_ft:
+            raise ValueError("The exit can't be in the 42 in the middle")
 
     def is_top_border(self, y: int) -> bool:
         return y == 0
@@ -122,6 +126,37 @@ class Maze:
             res['west'] = [x - 1, y]
         return res
 
+    def get_unsolved_neighbours(self,
+                                x: int,
+                                y: int) -> List[Tuple[int, int]]:
+        """ Return a Dict with the unsolved Cell from a position """
+        res = {}
+        if (not self.is_top_border(y)
+            and not self.body[y - 1][x].is_solved
+                and not self.body[y][x].is_ft
+                and not self.body[y - 1][x].south
+                and not self.body[y][x].north):
+            res['north'] = (x, y - 1)
+        if (not self.is_bot_border(y)
+            and not self.body[y + 1][x].is_solved
+                and not self.body[y + 1][x].is_ft
+                and not self.body[y + 1][x].north
+                and not self.body[y][x].south):
+            res['south'] = (x, y + 1)
+        if (not self.is_right_border(x)
+            and not self.body[y][x + 1].is_solved
+                and not self.body[y][x + 1].is_ft
+                and not self.body[y][x + 1].west
+                and not self.body[y][x].east):
+            res['east'] = (x + 1, y)
+        if (not self.is_left_border(x)
+            and not self.body[y][x - 1].is_solved
+                and not self.body[y][x - 1].is_ft
+                and not self.body[y][x - 1].east
+                and not self.body[y][x].west):
+            res['west'] = (x - 1, y)
+        return res
+
     def __set_forty_two_pattern(self) -> None:
         pattern = [
             "1   222",
@@ -163,3 +198,8 @@ class Maze:
                 if not self.is_valid_cell(x, y):
                     return False
         return True
+
+    # def set_unsolved(self) -> None:
+    #     for j in self.body:
+    #         for i in j:
+    #             i.is_solved = False

@@ -1,4 +1,5 @@
 from .errors import WallError
+from typing import Tuple
 
 
 class MazeCell():
@@ -11,7 +12,9 @@ class MazeCell():
                  is_start: bool = False,
                  is_end: bool = False,
                  is_visited: bool = False,
-                 is_ft: bool = False) -> None:
+                 is_ft: bool = False,
+                 is_solved: bool = False,
+                 is_solution: bool = False) -> None:
         '''Initializes the cell.
         True means the cell has a wall in that direction'''
         self.north = north
@@ -22,6 +25,8 @@ class MazeCell():
         self.is_end = is_end
         self.is_visited = is_visited
         self.is_ft = is_ft
+        self.is_solved = is_solved
+        self.is_solution = is_solution
 
     def set_start(self) -> None:
         self.is_start = True
@@ -31,6 +36,25 @@ class MazeCell():
 
     def visit(self) -> None:
         self.is_visited = True
+
+    def reset_g_value_update(self, g_value: int) -> None:
+        """ Set g_value for this Cell and update the Score of this cell """
+        self.g = g_value
+        self.score = self.g + self.heuristic
+
+    def calculate_score(self,
+                        start: Tuple[int, int],
+                        goal: Tuple[int, int],
+                        position: Tuple[int, int]) -> None:
+        """ Calculate the score and heuristic value for this cell """
+        self.heuristic = abs(
+            (goal[0] - position[0]) + (goal[1] - position[1])
+        )
+        self.score = self.g + self.heuristic
+
+    def set_solved(self) -> None:
+        """ Method to set the actual Cell to solved  """
+        self.is_solved = True
 
     def pop_north(self) -> None:
         '''Pops the northern wall, return WallError if there is no wall'''
