@@ -168,7 +168,9 @@ class MazeGenerator(ABC):
                 for y in range(self.maze.height):
                     line: str = ""
                     for x in range(self.maze.wid):
-                        line = ''.join([line, f"{hex(self.maze.body[y][x].get_bin_value())}"])
+                        line = ''.join(
+                            [line,
+                             f"{hex(self.maze.body[y][x].get_bin_value())}"])
                     line = line.replace("0x", "")
                     line = line.upper()
                     f.write(line)
@@ -176,5 +178,5 @@ class MazeGenerator(ABC):
                 f.write(f"\n{self.maze.entry[0]},{self.maze.entry[1]}")
                 f.write(f"\n{self.maze.out[0]},{self.maze.out[1]}\n")
                 f.write(self.__solution_string())
-        except (Exception) as e:
+        except Exception as e:
             print({e})

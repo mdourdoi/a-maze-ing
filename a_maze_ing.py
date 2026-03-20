@@ -306,7 +306,7 @@ def main() -> None:
         if key == 65307:
             m.mlx_loop_exit(mlx)
 
-        if (key == 65293 and mode_selected and generated and not solving 
+        if (key == 65293 and mode_selected and generated and not solving
                 and not solved):
             solving = True
             print("Solving...")
