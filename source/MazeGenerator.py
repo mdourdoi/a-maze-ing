@@ -67,7 +67,11 @@ class MazeGenerator(ABC):
         to_break = ceil(self.height * self.wid / 5)
         valid_cells = [[x, y] for x in range(self.wid)
                        for y in range(self.height)
+<<<<<<< HEAD
                        if not self.maze.body[y][x]._is_ft]
+=======
+                       if not self.maze.body[y][x].is_ft]
+>>>>>>> aa7c7c2 (ui improved, bypassing MLX ticks removed bc it causes visual bugs)
         while valid_cells and to_break:
             cell = self._random.choice(valid_cells)
             walled_neighbours = self.maze._get_walled_neighbours(
@@ -160,6 +164,7 @@ class MazeGenerator(ABC):
         """ Method to output the maze body into a file """
         try:
             with open(filename, "r+") as f:
+<<<<<<< HEAD
                 if verbose:
                     print(f"{filename} already exists, overwriting...")
                 f.seek(0)
@@ -167,6 +172,13 @@ class MazeGenerator(ABC):
         except (FileNotFoundError):
             if verbose:
                 print(f"Creating {filename}...")
+=======
+                print(f"{filename} already exists, overwriting...")
+                f.seek(0)
+                f.truncate()
+        except (FileNotFoundError):
+            print(f"Creating {filename}...") 
+>>>>>>> aa7c7c2 (ui improved, bypassing MLX ticks removed bc it causes visual bugs)
         try:
             with open(filename, "a") as f:
                 for y in range(self.maze.height):

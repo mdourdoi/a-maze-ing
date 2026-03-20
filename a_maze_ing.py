@@ -210,8 +210,13 @@ def main() -> None:
                 m.mlx_put_image_to_window(
                     mlx, win, bg_image, cell_pos_x, cell_pos_y)
 
+<<<<<<< HEAD
             if cell._is_solved and show_solution:
                 if cell._is_solution:
+=======
+            if cell.is_solved and show_solution:
+                if cell.is_solution:
+>>>>>>> aa7c7c2 (ui improved, bypassing MLX ticks removed bc it causes visual bugs)
                     m.mlx_put_image_to_window(
                         mlx, win, solved_img, cell_pos_x, cell_pos_y)
                 else:
@@ -256,7 +261,11 @@ def main() -> None:
             return
         for j in range(generator.height):
             for i in range(generator.wid):
+<<<<<<< HEAD
                 if generator.maze.body[j][i]._is_ft:
+=======
+                if generator.maze.body[j][i].is_ft:
+>>>>>>> aa7c7c2 (ui improved, bypassing MLX ticks removed bc it causes visual bugs)
                     draw_cell([i, j], generator.maze.body[j][i])
 
     def render_commands_panel() -> None:
@@ -356,7 +365,11 @@ def main() -> None:
             redraw_ft()
 
         if generated and solved and not solving and (key == 111 or key == 79):
+<<<<<<< HEAD
             generator._output(config['OUTPUT_FILE'])
+=======
+            generator.output(config['OUTPUT_FILE'])
+>>>>>>> aa7c7c2 (ui improved, bypassing MLX ticks removed bc it causes visual bugs)
         elif (key == 111 or key == 79):
             print("You need to solve the maze before creating the output")
 
@@ -394,7 +407,11 @@ def main() -> None:
 
         elif mode_selected and not solving:
             try:
+<<<<<<< HEAD
                 iteration = next(creator)
+=======
+                iteration = next(iterator)
+>>>>>>> aa7c7c2 (ui improved, bypassing MLX ticks removed bc it causes visual bugs)
                 x = iteration[0]
                 y = iteration[1]
                 redraw_zone(x, y)
