@@ -407,8 +407,9 @@ def main() -> None:
             # petit clignotement du curseur
             cursor = ">> " if (is_sel and blink_on) else "   "
             color = 0x00FF5555 if is_sel else 0x00CCCCCC
+            text = f"{cursor}{label}"
 
-            m.mlx_string_put(mlx, win, 500, y, color, f"{cursor}{label}")
+            m.mlx_string_put(mlx, win, window_width * 3 // 7, y, color, text)
 
     def on_close(ctx: Any):
         m.mlx_loop_exit(mlx)
