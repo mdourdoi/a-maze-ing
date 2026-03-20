@@ -136,6 +136,23 @@ class MazeGenerator(ABC):
                         open_list.append((neighbor[0], neighbor[1]))
             yield ((current[0], current[1]))
 
+    def __solution_string(self) -> str:
+        """Generate a formated string with the directions of the solution"""
+        res: str = ""
+        for i in range(len(self.solution) - 1):
+            print(self.solution[i])
+            if (self.solution[i][0] - self.solution[i + 1][0]) != 0:
+                if (self.solution[i][0] - self.solution[i + 1][0]) > 0:
+                    res = "".join([res, "W"])
+                else:
+                    res = "".join([res, "E"])
+            if (self.solution[i][1] - self.solution[i + 1][1]) != 0:
+                if (self.solution[i][1] - self.solution[i + 1][1]) > 0:
+                    res = "".join([res, "N"])
+                else:
+                    res = "".join([res, "S"])
+        return res
+
     def output(self, filename: str) -> None:
         """ Method to output the maze body into a file """
         try:
@@ -156,5 +173,8 @@ class MazeGenerator(ABC):
                     line = line.upper()
                     f.write(line)
                     f.write("\n")
+                f.write(f"\n{self.maze.entry[0]},{self.maze.entry[1]}")
+                f.write(f"\n{self.maze.out[0]},{self.maze.out[1]}\n")
+                f.write(self.__solution_string())
         except (Exception) as e:
             print({e})
