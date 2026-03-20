@@ -134,5 +134,49 @@ class MazeGenerator(ABC):
 
                     if (neighbor[0], neighbor[1]) not in open_list:
                         open_list.append((neighbor[0], neighbor[1]))
-
             yield ((current[0], current[1]))
+
+    def __solution_string(self) -> str:
+        """Generate a formated string with the directions of the solution"""
+        res: str = ""
+        for i in range(len(self.solution) - 1):
+            print(self.solution[i])
+            if (self.solution[i][0] - self.solution[i + 1][0]) != 0:
+                if (self.solution[i][0] - self.solution[i + 1][0]) > 0:
+                    res = "".join([res, "W"])
+                else:
+                    res = "".join([res, "E"])
+            if (self.solution[i][1] - self.solution[i + 1][1]) != 0:
+                if (self.solution[i][1] - self.solution[i + 1][1]) > 0:
+                    res = "".join([res, "N"])
+                else:
+                    res = "".join([res, "S"])
+        return res
+
+    def output(self, filename: str) -> None:
+        """ Method to output the maze body into a file """
+        try:
+            with open(filename, "r+") as f:
+                f.seek(0)
+                f.truncate()
+        except (FileNotFoundError):
+            print(f"creating {filename}...")
+        try:
+            with open(filename, "a") as f:
+                print(f"width: {self.maze.wid}")
+                print(f"height: {self.maze.height}")
+                for y in range(self.maze.height):
+                    line: str = ""
+                    for x in range(self.maze.wid):
+                        line = ''.join(
+                            [line,
+                             f"{hex(self.maze.body[y][x].get_bin_value())}"])
+                    line = line.replace("0x", "")
+                    line = line.upper()
+                    f.write(line)
+                    f.write("\n")
+                f.write(f"\n{self.maze.entry[0]},{self.maze.entry[1]}")
+                f.write(f"\n{self.maze.out[0]},{self.maze.out[1]}\n")
+                f.write(self.__solution_string())
+        except Exception as e:
+            print({e})

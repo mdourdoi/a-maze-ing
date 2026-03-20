@@ -306,7 +306,7 @@ def main() -> None:
         if key == 65307:
             m.mlx_loop_exit(mlx)
 
-        if (key == 65293 and mode_selected and generated and not solving 
+        if (key == 65293 and mode_selected and generated and not solving
                 and not solved):
             solving = True
             print("Solving...")
@@ -380,7 +380,7 @@ def main() -> None:
                         ...
                 generated = True
 
-        elif solving:
+        elif generated and solving:
             try:
                 iteration = next(solver)
                 x = iteration[0]
@@ -420,6 +420,7 @@ def main() -> None:
     m.mlx_hook(win, 33, 0, on_close, None)
     m.mlx_loop_hook(mlx, on_loop, None)
     m.mlx_loop(mlx)
+    generator.output("test_output.txt")
     destroy_runtime_images()
     m.mlx_loop_exit(mlx)
     m.mlx_destroy_window(mlx, win)

@@ -199,7 +199,5 @@ class Maze:
                     return False
         return True
 
-    # def set_unsolved(self) -> None:
-    #     for j in self.body:
-    #         for i in j:
-    #             i.is_solved = False
+   
+
