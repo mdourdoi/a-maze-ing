@@ -1,7 +1,7 @@
 from helpers import get_config
 from mlx import Mlx
-from typing import Any, List
-from source import MazeCell, Maze
+from typing import Any, List, Generator
+from source import MazeCell, Maze, MazeGenerator
 from generators import HuntAndKillGenerator, PrimGenerator
 import sys
 
@@ -21,6 +21,12 @@ def main() -> None:
         'W - Rotate wall colors',
         'F - Rotate 42 colors',
         'Esc - Quit']
+    colors_rotation = [
+        0xFFFFFFFF,
+        0xFF0000FF,
+        0xFFFF0000,
+        0xFF008000,
+        0xFFFFFF00]
 
     config_file = sys.argv
     if len(config_file) != 2:
@@ -34,6 +40,14 @@ def main() -> None:
             config['WIDTH'],
             config['ENTRY'],
             config['EXIT'])
+        if 'SEED' in config.keys() and config['SEED'] is not None:
+            command_hints.append('')
+            command_hints.append('')
+            command_hints.append('Warning: You used a seed.')
+            command_hints.append('')
+            command_hints.append('Reloading with')
+            command_hints.append('the same algorithm will')
+            command_hints.append('give you the same maze.')
     except Exception as cur_error:
         print(f"Error with given arguments: {cur_error}")
         return
@@ -46,12 +60,12 @@ def main() -> None:
     menu_items = ["Prim's algorithm", 'Hunt and kill', 'Quit']
     selected = 0
     blink_on = True
-    generator = None
-    imperfector = None
+    generator: MazeGenerator | None = None
+    imperfector: Generator | None = None
     frame = 0
-    iterator = None
+    iterator: Generator | None = None
     generated = False
-    solver = None
+    solver: Generator | None = None
     solving = False
     solved = False
     mode_selected = None
@@ -68,8 +82,10 @@ def main() -> None:
     start_image = None
     end_image = None
     ft_image = None
+    wall_color_index = colors_rotation.index(0xFFFF0000)
+    ft_color_index = colors_rotation.index(0xFFFFFFFF)
 
-    def make_solid_image(w: int, h: int, color: int):
+    def make_solid_image(w: int, h: int, color: int) -> Any:
         img = m.mlx_new_image(mlx, w, h)
         data, bpp, sl, _ = m.mlx_get_data_addr(img)
         byte_per_pixel = bpp // 8
@@ -82,12 +98,16 @@ def main() -> None:
         return img
 
     def destroy_runtime_images() -> None:
-        nonlocal img, h_wall, v_wall, bg_image
-        nonlocal start_image, end_image, ft_image, solving_img, solved_img
+        nonlocal img
 
+        destroy_maze_images()
         if img is not None:
             m.mlx_destroy_image(mlx, img)
             img = None
+
+    def destroy_maze_images() -> None:
+        nonlocal h_wall, v_wall, bg_image
+        nonlocal start_image, end_image, ft_image, solving_img, solved_img
 
         if h_wall is not None:
             m.mlx_destroy_image(mlx, h_wall)
@@ -114,6 +134,46 @@ def main() -> None:
             m.mlx_destroy_image(mlx, solved_img)
             solved_img = None
 
+    def build_generator(algo_name: str) -> MazeGenerator | None:
+        if algo_name == 'Hunt and kill':
+            return HuntAndKillGenerator(
+                name="hunt-and-kill",
+                entry=config['ENTRY'],
+                out=config['EXIT'],
+                height=config['HEIGHT'],
+                wid=config['WIDTH'],
+                seed=config['SEED'] if 'SEED' in config else None
+            )
+        if algo_name == "Prim's algorithm":
+            return PrimGenerator(
+                name="Prim's algorithm",
+                entry=config['ENTRY'],
+                out=config['EXIT'],
+                height=config['HEIGHT'],
+                wid=config['WIDTH'],
+                seed=config['SEED'] if 'SEED' in config else None
+            )
+        return None
+
+    def rebuild_color_images() -> None:
+        nonlocal h_wall, v_wall, ft_image
+        nonlocal cell_size_x, cell_size_y
+
+        if cell_size_x is None or cell_size_y is None:
+            return
+        if h_wall is not None:
+            m.mlx_destroy_image(mlx, h_wall)
+        if v_wall is not None:
+            m.mlx_destroy_image(mlx, v_wall)
+        if ft_image is not None:
+            m.mlx_destroy_image(mlx, ft_image)
+        h_wall = make_solid_image(
+            cell_size_x + 1, 1, colors_rotation[wall_color_index])
+        v_wall = make_solid_image(
+            1, cell_size_y + 1, colors_rotation[wall_color_index])
+        ft_image = make_solid_image(
+            cell_size_x, cell_size_y, colors_rotation[ft_color_index])
+
     def draw_cell(
             pos: List[int],
             cell: MazeCell,
@@ -130,22 +190,22 @@ def main() -> None:
             if cell.is_ft:
                 m.mlx_put_image_to_window(
                     mlx, win, ft_image, cell_pos_x, cell_pos_y)
-            elif cell.is_start and not cell.is_solved:
+            elif cell.is_start:
                 m.mlx_put_image_to_window(
                     mlx, win, start_image, cell_pos_x, cell_pos_y)
-            elif cell.is_end and not cell.is_solved:
+            elif cell.is_end:
                 m.mlx_put_image_to_window(
                     mlx, win, end_image, cell_pos_x, cell_pos_y)
             else:
-                if cell.is_solved and not cell.is_solution:
-                    m.mlx_put_image_to_window(
-                        mlx, win, solving_img, cell_pos_x, cell_pos_y)
-                elif cell.is_solved and cell.is_solution:
-                    m.mlx_put_image_to_window(
-                        mlx, win, solved_img, cell_pos_x, cell_pos_y)
-                else:
-                    m.mlx_put_image_to_window(
-                        mlx, win, bg_image, cell_pos_x, cell_pos_y)
+                m.mlx_put_image_to_window(
+                    mlx, win, bg_image, cell_pos_x, cell_pos_y)
+
+            if cell.is_solved and not cell.is_solution:
+                m.mlx_put_image_to_window(
+                    mlx, win, solving_img, cell_pos_x, cell_pos_y)
+            elif cell.is_solved and cell.is_solution:
+                m.mlx_put_image_to_window(
+                    mlx, win, solved_img, cell_pos_x, cell_pos_y)
 
         if cell.north:
             m.mlx_put_image_to_window(mlx, win, h_wall, cell_pos_x, cell_pos_y)
@@ -173,6 +233,13 @@ def main() -> None:
         for i, j in cells:
             draw_cell([i, j], generator.maze.body[j][i], False)
 
+    def redraw_maze() -> None:
+        if generator is None:
+            return
+        for j in range(generator.height):
+            for i in range(generator.wid):
+                draw_cell([i, j], generator.maze.body[j][i])
+
     def render_commands_panel() -> None:
         title_color = 0x00FFD166
         text_color = 0x00CCCCCC
@@ -182,21 +249,83 @@ def main() -> None:
             y = 110 + index * 32
             m.mlx_string_put(mlx, win, panel_x, y, text_color, label)
 
+    def load_maze(algo_name: str) -> None:
+        nonlocal started, generator, iterator, mode_selected
+        nonlocal cell_size_x, cell_size_y, bg_image
+        nonlocal start_image, end_image, imperfector, solver
+        nonlocal solving, solving_img, solved_img, generated, solved
+
+        mode_selected = algo_name
+        generator = build_generator(algo_name)
+        if generator is None:
+            return
+        started = True
+        generated = False
+        solving = False
+        solved = False
+        imperfector = None
+        iterator = None
+        solver = None
+
+        destroy_maze_images()
+        m.mlx_clear_window(mlx, win)
+        render_commands_panel()
+        cell_size_x = maze_width // generator.wid
+        cell_size_y = maze_height // generator.height
+        bg_image = make_solid_image(
+            cell_size_x, cell_size_y, 0xFF000000)
+        start_image = make_solid_image(
+            cell_size_x, cell_size_y, 0xFF008000)
+        end_image = make_solid_image(
+            cell_size_x, cell_size_y, 0xFF0000FF)
+        rebuild_color_images()
+        iterator = generator.generate_maze()
+        for j in range(generator.height):
+            for i in range(generator.wid):
+                if (generator.maze.body[j][i].is_ft or
+                    generator.maze.body[j][i].is_start or
+                        generator.maze.body[j][i].is_end):
+                    draw_cell([i, j], generator.maze.body[j][i])
+        if not config['PERFECT']:
+            imperfector = generator.make_imperfect()
+        solving_img = make_solid_image(
+            cell_size_x, cell_size_y, 0x22FFFF00)
+        solved_img = make_solid_image(
+            cell_size_x, cell_size_y, 0xFF3B2077)
+        solver = generator.solve()
+
     def on_key(key: int, ctx: Any) -> None:
 
         nonlocal started, generator, iterator, selected, mode_selected
         nonlocal cell_size_x, cell_size_y, v_wall, h_wall, bg_image
         nonlocal start_image, end_image, ft_image
         nonlocal imperfector, solver, solving, solving_img, solved_img
-        nonlocal generated
+        nonlocal generated, wall_color_index, ft_color_index, solved
 
         # Exit with Esc
         if key == 65307:
             m.mlx_loop_exit(mlx)
 
-        if key == 65293 and mode_selected and generated and not solving:
+        if (key == 65293 and mode_selected and generated and not solving 
+                and not solved):
             solving = True
             print("Solving...")
+
+        if generated and not solving and (key == 104 or key == 72):
+            load_maze('Hunt and kill')
+
+        if generated and not solving and (key == 112 or key == 80):
+            load_maze("Prim's algorithm")
+
+        if generated and (key == 119 or key == 87):
+            wall_color_index = (wall_color_index + 1) % len(colors_rotation)
+            rebuild_color_images()
+            redraw_maze()
+
+        if generated and (key == 102 or key == 70):
+            ft_color_index = (ft_color_index + 1) % len(colors_rotation)
+            rebuild_color_images()
+            redraw_maze()
 
         # Menu selection
         if key == 65362 and not mode_selected:
@@ -209,7 +338,6 @@ def main() -> None:
 
         if key == 65293 and not mode_selected:
             mode_selected = menu_items[selected]
-            m.mlx_clear_window(mlx, win)
 
             # Exit if 'Quit' is selected
             if mode_selected == 'Quit':
@@ -217,59 +345,12 @@ def main() -> None:
                 return
 
             print('Selected:', mode_selected)
-            if mode_selected == 'Hunt and kill':
-                started = True
-                generator = HuntAndKillGenerator(
-                    name="hunt-and-kill",
-                    entry=config['ENTRY'],
-                    out=config['EXIT'],
-                    height=config['HEIGHT'],
-                    wid=config['WIDTH'],
-                    seed=config['SEED'] if 'SEED' in config else None
-                )
-            if mode_selected == "Prim's algorithm":
-                started = True
-                generator = PrimGenerator(
-                    name="Prim's algorithm",
-                    entry=config['ENTRY'],
-                    out=config['EXIT'],
-                    height=config['HEIGHT'],
-                    wid=config['WIDTH'],
-                    seed=config['SEED'] if 'SEED' in config else None
-                )
-            if started:
-                render_commands_panel()
-                cell_size_x = maze_width // generator.wid
-                cell_size_y = maze_height // generator.height
-                h_wall = make_solid_image(cell_size_x + 1, 1, 0xFFFF0000)
-                v_wall = make_solid_image(1, cell_size_y + 1, 0xFFFF0000)
-                bg_image = make_solid_image(
-                    cell_size_x, cell_size_y, 0xFF000000)
-                start_image = make_solid_image(
-                    cell_size_x, cell_size_y, 0xFF008000)
-                end_image = make_solid_image(
-                    cell_size_x, cell_size_y, 0xFF0000FF)
-                ft_image = make_solid_image(
-                    cell_size_x, cell_size_y, 0xFFFFFFFF)
-                iterator = generator.generate_maze()
-                for j in range(generator.height):
-                    for i in range(generator.wid):
-                        if (generator.maze.body[j][i].is_ft or
-                            generator.maze.body[j][i].is_start or
-                                generator.maze.body[j][i].is_end):
-                            draw_cell([i, j], generator.maze.body[j][i])
-                if not config['PERFECT']:
-                    imperfector = generator.make_imperfect()
-                solving_img = make_solid_image(
-                    cell_size_x, cell_size_y, 0x55FFFF00)
-                solved_img = make_solid_image(
-                    cell_size_x, cell_size_y, 0xFF3B2077)
-                solver = generator.solve()
+            load_maze(mode_selected)
 
     def on_loop(ctx: Any) -> None:
         nonlocal started, iterator, frame, blink_on
         nonlocal imperfector, generator, generated
-        nonlocal solved
+        nonlocal solved, solving
 
         if mode_selected is None:
             frame += 1
@@ -306,6 +387,7 @@ def main() -> None:
                 y = iteration[1]
                 draw_cell([x, y], generator.maze.body[y][x])
             except StopIteration:
+                solving = False
                 if not solved:
                     solved = True
                     print('Solved !')
@@ -325,8 +407,9 @@ def main() -> None:
             # petit clignotement du curseur
             cursor = ">> " if (is_sel and blink_on) else "   "
             color = 0x00FF5555 if is_sel else 0x00CCCCCC
+            text = f"{cursor}{label}"
 
-            m.mlx_string_put(mlx, win, 500, y, color, f"{cursor}{label}")
+            m.mlx_string_put(mlx, win, window_width * 3 // 7, y, color, text)
 
     def on_close(ctx: Any):
         m.mlx_loop_exit(mlx)
