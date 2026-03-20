@@ -199,12 +199,6 @@ class Maze:
                     return False
         return True
 
-<<<<<<< HEAD
-    # def set_unsolved(self) -> None:
-    #     for j in self.body:
-    #         for i in j:
-    #             i.is_solved = False
-=======
     def output_maze(self) -> None:
         """ Method to output the maze body into a file """
         try:
@@ -221,4 +215,4 @@ class Maze:
                     f.write("\n")
         except (Exception) as e:
             print({e})
->>>>>>> 938e70b (output file)
+
