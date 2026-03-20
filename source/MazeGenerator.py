@@ -134,13 +134,27 @@ class MazeGenerator(ABC):
 
                     if (neighbor[0], neighbor[1]) not in open_list:
                         open_list.append((neighbor[0], neighbor[1]))
-
-<<<<<<< HEAD
             yield ((current[0], current[1]))
-=======
-            yield((current[1], current[0]))
 
-    def output(self) -> None:
-        self.maze.output_maze()
-
->>>>>>> 938e70b (output file)
+    def output(self, filename: str) -> None:
+        """ Method to output the maze body into a file """
+        try:
+            with open(filename, "r+") as f:
+                f.seek(0)
+                f.truncate()
+        except (FileNotFoundError):
+            print(f"creating {filename}...")
+        try:
+            with open(filename, "a") as f:
+                print(f"width: {self.maze.wid}")
+                print(f"height: {self.maze.height}")
+                for y in range(self.maze.height):
+                    line: str = ""
+                    for x in range(self.maze.wid):
+                        line = ''.join([line, f"{hex(self.maze.body[y][x].get_bin_value())}"])
+                    line = line.replace("0x", "")
+                    line = line.upper()
+                    f.write(line)
+                    f.write("\n")
+        except (Exception) as e:
+            print({e})

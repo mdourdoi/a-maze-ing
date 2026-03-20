@@ -199,20 +199,5 @@ class Maze:
                     return False
         return True
 
-    def output_maze(self) -> None:
-        """ Method to output the maze body into a file """
-        try:
-            with open("output_maze.txt", "a") as f:
-                print(f"width: {self.wid}")
-                print(f"height: {self.height}")
-                for x in range(self.wid):
-                    line: str = ""
-                    for y in range(self.height):
-                        line = ''.join([line, f"{hex(self.body[y][x].get_bin_value())}"])
-                    line = line.replace("0x", "")
-                    line = line.upper()
-                    f.write(line)
-                    f.write("\n")
-        except (Exception) as e:
-            print({e})
+   
 
