@@ -420,6 +420,7 @@ def main() -> None:
     m.mlx_hook(win, 33, 0, on_close, None)
     m.mlx_loop_hook(mlx, on_loop, None)
     m.mlx_loop(mlx)
+    generator.maze.output_maze()
     destroy_runtime_images()
     m.mlx_loop_exit(mlx)
     m.mlx_destroy_window(mlx, win)

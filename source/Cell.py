@@ -47,7 +47,6 @@ class MazeCell():
             value += 4
         if self.west:
             value += 8
-        print(f"val {value}")
         return value
 
     def set_solved(self) -> None:
