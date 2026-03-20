@@ -107,12 +107,12 @@ class Maze:
         if (not self.is_top_border(y)
             and self.body[y - 1][x].south
             and self.body[y][x].north
-                and not self.body[y][x].is_ft):
+                and not self.body[y - 1][x].is_ft):
             res['north'] = [x, y - 1]
         if (not self.is_bot_border(y)
             and self.body[y + 1][x].north
             and self.body[y][x].south
-                and not self.body[y][x].is_ft):
+                and not self.body[y + 1][x].is_ft):
             res['south'] = [x, y + 1]
         if (not self.is_right_border(x)
             and self.body[y][x + 1].west
