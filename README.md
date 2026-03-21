@@ -245,4 +245,4 @@ python3 a_maze_ing.py config.txt
 >   -   N: North
 >   -   S: South
 >   -   E: East
->   -   W: West 
+>   -   W: West
