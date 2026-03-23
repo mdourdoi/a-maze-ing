@@ -441,7 +441,7 @@ def main() -> None:
             text = f"{cursor}{label}"
 
             m.mlx_string_put(mlx, win, window_width * 3 // 7, y, color, text)
-            m.mlx_do_sync(mlx)
+        m.mlx_do_sync(mlx)
 
     def on_close(ctx: Any):
         m.mlx_loop_exit(mlx)
