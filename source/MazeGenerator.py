@@ -37,31 +37,31 @@ class MazeGenerator(ABC):
 
     def _carve(self, x: int, y: int, direction: str) -> None:
         if direction == 'north':
-            self.maze.body[y][x].pop_north()
-            self.maze.body[y - 1][x].pop_south()
+            self.maze.body[y][x]._pop_north()
+            self.maze.body[y - 1][x]._pop_south()
         if direction == 'south':
-            self.maze.body[y][x].pop_south()
-            self.maze.body[y + 1][x].pop_north()
+            self.maze.body[y][x]._pop_south()
+            self.maze.body[y + 1][x]._pop_north()
         if direction == 'east':
-            self.maze.body[y][x].pop_east()
-            self.maze.body[y][x + 1].pop_west()
+            self.maze.body[y][x]._pop_east()
+            self.maze.body[y][x + 1]._pop_west()
         if direction == 'west':
-            self.maze.body[y][x].pop_west()
-            self.maze.body[y][x - 1].pop_east()
+            self.maze.body[y][x]._pop_west()
+            self.maze.body[y][x - 1]._pop_east()
 
     def _restore(self, x: int, y: int, direction: str) -> None:
         if direction == 'north':
-            self.maze.body[y][x].create_north()
-            self.maze.body[y - 1][x].create_south()
+            self.maze.body[y][x]._create_north()
+            self.maze.body[y - 1][x]._create_south()
         if direction == 'south':
-            self.maze.body[y][x].create_south()
-            self.maze.body[y + 1][x].create_north()
+            self.maze.body[y][x]._create_south()
+            self.maze.body[y + 1][x]._create_north()
         if direction == 'east':
-            self.maze.body[y][x].create_east()
-            self.maze.body[y][x + 1].create_west()
+            self.maze.body[y][x]._create_east()
+            self.maze.body[y][x + 1]._create_west()
         if direction == 'west':
-            self.maze.body[y][x].create_west()
-            self.maze.body[y][x - 1].create_east()
+            self.maze.body[y][x]._create_west()
+            self.maze.body[y][x - 1]._create_east()
 
     def _make_imperfect(self) -> Generator:
         to_break = ceil(self.height * self.wid / 5)
@@ -70,7 +70,7 @@ class MazeGenerator(ABC):
                        if not self.maze.body[y][x].is_ft]
         while valid_cells and to_break:
             cell = self.random.choice(valid_cells)
-            walled_neighbours = self.maze.get_walled_neighbours(
+            walled_neighbours = self.maze._get_walled_neighbours(
                 cell[0], cell[1])
             if not walled_neighbours:
                 valid_cells.remove([cell[0], cell[1]])
@@ -78,7 +78,7 @@ class MazeGenerator(ABC):
             direction = self.random.choice(list(walled_neighbours.keys()))
             n_x, n_y = walled_neighbours[direction]
             self._carve(cell[0], cell[1], direction)
-            if self.maze.is_valid():
+            if self.maze._is_valid():
                 valid_cells.remove([cell[0], cell[1]])
                 to_break -= 1
                 yield [cell[0], cell[1], direction]
@@ -107,11 +107,11 @@ class MazeGenerator(ABC):
         while open_list:
             current = min(
                 open_list, key=lambda x: f_score.get(x))
-            self.maze.body[current[1]][current[0]].set_solved()
+            self.maze.body[current[1]][current[0]]._set_solved()
 
             if current == (self.maze.out[0], self.maze.out[1]):
                 self.is_solved = True
-                self.maze.body[current[1]][current[0]].set_solved()
+                self.maze.body[current[1]][current[0]]._set_solved()
                 path = []
                 while current in came_from:
                     path.append(current)
@@ -119,12 +119,12 @@ class MazeGenerator(ABC):
                 path.append((self.maze.entry[0], self.maze.entry[1]))
                 self.solution = list(reversed(path))
                 for data in self.solution:
-                    self.maze.body[data[1]][data[0]].is_solution = True
+                    self.maze.body[data[1]][data[0]]._is_solution = True
                     yield (data[0], data[1])
                 return
 
             open_list.remove(current)
-            for neighbor in self.maze.get_unsolved_neighbours(
+            for neighbor in self.maze._get_unsolved_neighbours(
                     current[0], current[1]).values():
                 tentative_g = g_score[current] + 1
 
@@ -174,7 +174,7 @@ class MazeGenerator(ABC):
                     for x in range(self.maze.wid):
                         line = ''.join(
                             [line,
-                             f"{hex(self.maze.body[y][x].get_bin_value())}"])
+                             f"{hex(self.maze.body[y][x]._get_bin_value())}"])
                     line = line.replace("0x", "")
                     line = line.upper()
                     f.write(line)

@@ -211,7 +211,7 @@ def main() -> None:
                     mlx, win, bg_image, cell_pos_x, cell_pos_y)
 
             if cell.is_solved and show_solution:
-                if cell.is_solution:
+                if cell._is_solution:
                     m.mlx_put_image_to_window(
                         mlx, win, solved_img, cell_pos_x, cell_pos_y)
                 else:
@@ -234,7 +234,7 @@ def main() -> None:
         for j in range(max(0, y - 1), min(generator.height, y + 2)):
             for i in range(max(0, x - 1), min(generator.wid, x + 2)):
                 cell = generator.maze.body[j][i]
-                if (cell.is_visited or cell.is_ft
+                if (cell._is_visited or cell.is_ft
                         or cell.is_start or cell.is_end):
                     cells.append((i, j))
         draw_cell([x, y], generator.maze.body[y][x])
