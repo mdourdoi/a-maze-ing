@@ -104,6 +104,50 @@ python3 a_maze_ing.py config.txt
 >       Specify a seed value to generate the Maze, different seed will generate different maze,
 >       keeping the same seed will result to generate the same Maze
 
+## ⚙️ MAZE GENERATION ALGORITHM
+
+### Prelude:
+
+>
+> The **A-Maze-Ing** package contain 2 maze generation Algorithm. The **HuntAndKill** Algorithm and **Prim** Algorithm.
+> Number of algorithm can be **easily increased** by adding new generator object, as long as it respect the structure
+> of the **MazeGenerator Class** and yield every step of the generation correctly and return a Python Generator that contains
+> every position and direction of the algorithm.
+> 
+
+### Hunt And Kill
+
+> The Hunt And Kill algorithm is a simple algorithm that create long winding paths by simply searching the least advanced 
+> unvisited cell (left to right, up to down) that is connected to the maze and start to carve a path until it has no unvisited
+> cells. Repeat until there is not unvisited cell within the maze. This method unsure that the generated maze will be perfect.
+>
+> #### Pseudo Code:
+>
+> ```
+>   HuntAndKill(start_location):
+>       while map_has_unvisited_cell:
+>           build_path:
+>               /* First path to create at start position */
+>               while valid_neighbour(location):
+>                   neighbor = choose random neighbor
+>                   carve_to_neighbor
+>                   location = neighbor
+>           Look_for_unvisited_cell:
+>               /* Iterate through the grid to look for  */
+>               for y_cell in maze:
+>                   for x_cell in maze:
+>                       if x_cell is unvisited:
+>                           return x_cell as new_position       
+> ```
+
+### Prim
+
+> The Prim algorithm is much different from the Hunt And Kill, it begin from an arbitery cell
+> and expand from it. This strategy works with 2 list of cells
+
+### Openning map
+
+> Destroy max 20% of the map randomely, but it can be modified whitin the code
 
 >## ⚙️ OUTPUT FILE
 >    **output file format:**
