@@ -1,5 +1,4 @@
 from .errors import WallError
-from typing import Tuple
 
 
 class MazeCell():

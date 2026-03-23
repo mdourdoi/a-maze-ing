@@ -64,7 +64,7 @@ def main() -> None:
     generator: MazeGenerator | None = None
     imperfector: Generator | None = None
     frame = 0
-    iterator: Generator | None = None
+    creator: Generator | None = None
     generated = False
     solver: Generator | None = None
     solving = False
@@ -270,7 +270,7 @@ def main() -> None:
             m.mlx_do_sync(mlx)
 
     def load_maze(algo_name: str) -> None:
-        nonlocal started, generator, iterator, mode_selected
+        nonlocal started, generator, creator, mode_selected
         nonlocal cell_size_x, cell_size_y, bg_image
         nonlocal start_image, end_image, imperfector, solver
         nonlocal solving, solving_img, solved_img, generated, solved
@@ -286,7 +286,7 @@ def main() -> None:
         solved = False
         show_solution = False
         imperfector = None
-        iterator = None
+        creator = None
         solver = None
 
         destroy_maze_images()
@@ -301,7 +301,7 @@ def main() -> None:
         end_image = make_solid_image(
             cell_size_x, cell_size_y, 0xFF0000FF)
         rebuild_color_images()
-        iterator = generator.generate_maze()
+        creator = generator._generate_maze()
         for j in range(generator.height):
             for i in range(generator.wid):
                 if (generator.maze.body[j][i].is_ft or
@@ -309,16 +309,16 @@ def main() -> None:
                         generator.maze.body[j][i].is_end):
                     draw_cell([i, j], generator.maze.body[j][i])
         if not config['PERFECT']:
-            imperfector = generator.make_imperfect()
+            imperfector = generator._make_imperfect()
         solving_img = make_solid_image(
             cell_size_x, cell_size_y, 0x88FFFF00)
         solved_img = make_solid_image(
             cell_size_x, cell_size_y, 0xFF3B2077)
-        solver = generator.solve()
+        solver = generator._solve()
 
     def on_key(key: int, ctx: Any) -> None:
 
-        nonlocal started, generator, iterator, selected, mode_selected
+        nonlocal started, generator, creator, selected, mode_selected
         nonlocal cell_size_x, cell_size_y, v_wall, h_wall, bg_image
         nonlocal start_image, end_image, ft_image
         nonlocal imperfector, solver, solving, solving_img, solved_img
@@ -356,7 +356,7 @@ def main() -> None:
             redraw_ft()
 
         if generated and solved and not solving and (key == 111 or key == 79):
-            generator.output(config['OUTPUT_FILE'])
+            generator._output(config['OUTPUT_FILE'])
         elif (key == 111 or key == 79):
             print("You need to solve the maze before creating the output")
 
@@ -381,7 +381,7 @@ def main() -> None:
             load_maze(mode_selected)
 
     def on_loop(ctx: Any) -> None:
-        nonlocal started, iterator, frame, blink_on
+        nonlocal started, creator, frame, blink_on
         nonlocal imperfector, generator, generated
         nonlocal solved, solving
 
@@ -394,7 +394,7 @@ def main() -> None:
 
         elif mode_selected and not solving:
             try:
-                iteration = next(iterator)
+                iteration = next(creator)
                 x = iteration[0]
                 y = iteration[1]
                 redraw_zone(x, y)
