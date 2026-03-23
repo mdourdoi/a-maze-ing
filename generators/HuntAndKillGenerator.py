@@ -21,7 +21,7 @@ class HuntAndKillGenerator(MazeGenerator):
         while running:
             valid_neighbours = self.maze._get_valid_neighbours(cur_x, cur_y)
             if valid_neighbours:
-                next_dir = self.random.choice(list(valid_neighbours.keys()))
+                next_dir = self._random.choice(list(valid_neighbours.keys()))
                 self._carve(cur_x, cur_y, next_dir)
                 chosen = valid_neighbours[next_dir]
                 cur_x, cur_y = chosen[0], chosen[1]
@@ -32,11 +32,11 @@ class HuntAndKillGenerator(MazeGenerator):
                 for j in range(self.height):
                     for i in range(self.wid):
                         if (not self.maze.body[j][i]._is_visited
-                                and not self.maze.body[j][i].is_ft):
+                                and not self.maze.body[j][i]._is_ft):
                             vis_neigh = self.maze._get_visited_neighbours(i, j)
                             if vis_neigh:
                                 running = True
-                                next_dir = self.random.choice(
+                                next_dir = self._random.choice(
                                     list(vis_neigh.keys()))
                                 self._carve(i, j, next_dir)
                                 cur_x, cur_y = i, j

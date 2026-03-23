@@ -23,7 +23,7 @@ class MazeCell():
         self.is_start = is_start
         self.is_end = is_end
         self._is_visited = is_visited
-        self.is_ft = is_ft
+        self._is_ft = is_ft
         self._is_solved = is_solved
         self._is_solution = is_solution
 

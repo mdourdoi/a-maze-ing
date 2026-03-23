@@ -26,7 +26,7 @@ class MazeGenerator(ABC):
         self.height = height
         self.wid = wid
         self.seed = seed
-        self.random = random.Random(seed)
+        self._random = random.Random(seed)
         self.is_solved = False
         self.is_generated = False
         self.solution = []
@@ -67,15 +67,15 @@ class MazeGenerator(ABC):
         to_break = ceil(self.height * self.wid / 5)
         valid_cells = [[x, y] for x in range(self.wid)
                        for y in range(self.height)
-                       if not self.maze.body[y][x].is_ft]
+                       if not self.maze.body[y][x]._is_ft]
         while valid_cells and to_break:
-            cell = self.random.choice(valid_cells)
+            cell = self._random.choice(valid_cells)
             walled_neighbours = self.maze._get_walled_neighbours(
                 cell[0], cell[1])
             if not walled_neighbours:
                 valid_cells.remove([cell[0], cell[1]])
                 continue
-            direction = self.random.choice(list(walled_neighbours.keys()))
+            direction = self._random.choice(list(walled_neighbours.keys()))
             n_x, n_y = walled_neighbours[direction]
             self._carve(cell[0], cell[1], direction)
             if self.maze._is_valid():
@@ -119,7 +119,7 @@ class MazeGenerator(ABC):
                 path.append((self.maze.entry[0], self.maze.entry[1]))
                 self.solution = list(reversed(path))
                 for data in self.solution:
-                    self.maze.body[data[1]][data[0]].is_solution = True
+                    self.maze.body[data[1]][data[0]]._is_solution = True
                     yield (data[0], data[1])
                 return
 

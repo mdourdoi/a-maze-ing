@@ -197,7 +197,7 @@ def main() -> None:
         cell_pos_y = pos[1] * cell_size_y
 
         if draw_background:
-            if cell.is_ft:
+            if cell._is_ft:
                 m.mlx_put_image_to_window(
                     mlx, win, ft_image, cell_pos_x, cell_pos_y)
             elif cell.is_start:
@@ -234,7 +234,7 @@ def main() -> None:
         for j in range(max(0, y - 1), min(generator.height, y + 2)):
             for i in range(max(0, x - 1), min(generator.wid, x + 2)):
                 cell = generator.maze.body[j][i]
-                if (cell._is_visited or cell.is_ft
+                if (cell._is_visited or cell._is_ft
                         or cell.is_start or cell.is_end):
                     cells.append((i, j))
         draw_cell([x, y], generator.maze.body[y][x])
@@ -256,7 +256,7 @@ def main() -> None:
             return
         for j in range(generator.height):
             for i in range(generator.wid):
-                if generator.maze.body[j][i].is_ft:
+                if generator.maze.body[j][i]._is_ft:
                     draw_cell([i, j], generator.maze.body[j][i])
 
     def render_commands_panel() -> None:
@@ -304,7 +304,7 @@ def main() -> None:
         creator = generator._generate_maze()
         for j in range(generator.height):
             for i in range(generator.wid):
-                if (generator.maze.body[j][i].is_ft or
+                if (generator.maze.body[j][i]._is_ft or
                     generator.maze.body[j][i].is_start or
                         generator.maze.body[j][i].is_end):
                     draw_cell([i, j], generator.maze.body[j][i])
