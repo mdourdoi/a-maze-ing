@@ -13,7 +13,7 @@ class HuntAndKillGenerator(MazeGenerator):
                  seed: int | None = None):
         super().__init__(name, entry, out, height, wid, seed)
 
-    def generate_maze(self) -> Generator:
+    def _generate_maze(self) -> Generator:
         cur_x, cur_y = self.maze.entry[0], self.maze.entry[1]
         self.maze.body[cur_y][cur_x].visit()
         running = True
@@ -22,7 +22,7 @@ class HuntAndKillGenerator(MazeGenerator):
             valid_neighbours = self.maze.get_valid_neighbours(cur_x, cur_y)
             if valid_neighbours:
                 next_dir = self.random.choice(list(valid_neighbours.keys()))
-                self.carve(cur_x, cur_y, next_dir)
+                self._carve(cur_x, cur_y, next_dir)
                 chosen = valid_neighbours[next_dir]
                 cur_x, cur_y = chosen[0], chosen[1]
                 self.maze.body[cur_y][cur_x].visit()
@@ -38,7 +38,7 @@ class HuntAndKillGenerator(MazeGenerator):
                                 running = True
                                 next_dir = self.random.choice(
                                     list(vis_neigh.keys()))
-                                self.carve(i, j, next_dir)
+                                self._carve(i, j, next_dir)
                                 cur_x, cur_y = i, j
                                 self.maze.body[cur_y][cur_x].visit()
                                 yield [cur_x, cur_y]
@@ -46,3 +46,4 @@ class HuntAndKillGenerator(MazeGenerator):
                             break
                     if running is True:
                         break
+        self.is_generated = True

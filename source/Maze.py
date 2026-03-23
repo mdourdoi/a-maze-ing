@@ -198,6 +198,3 @@ class Maze:
                 if not self.is_valid_cell(x, y):
                     return False
         return True
-
-   
-
