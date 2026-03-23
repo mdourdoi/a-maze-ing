@@ -15,11 +15,12 @@ def main() -> None:
     window_height = maze_height
     panel_x = maze_width + 24
     command_hints = [
-        'ENTER - Solve the maze',
+        'ENTER - Search/Hide shortest path',
         'H - Reload with Hunt And Kill',
         "P - Reload with Prim's algorithm",
         'W - Rotate wall colors',
         'F - Rotate 42 colors',
+        'O - Create output file',
         'Esc - Quit']
     colors_rotation = [
         0xFFFFFFFF,
@@ -68,6 +69,7 @@ def main() -> None:
     solver: Generator | None = None
     solving = False
     solved = False
+    show_solution = False
     mode_selected = None
     started = False
     spongebob_path = './assets/spongebob.png'
@@ -155,8 +157,19 @@ def main() -> None:
             )
         return None
 
+    def rebuild_ft_image() -> None:
+        nonlocal ft_image
+        nonlocal cell_size_x, cell_size_y
+
+        if cell_size_x is None or cell_size_y is None:
+            return
+        if ft_image is not None:
+            m.mlx_destroy_image(mlx, ft_image)
+        ft_image = make_solid_image(
+            cell_size_x, cell_size_y, colors_rotation[ft_color_index])
+
     def rebuild_color_images() -> None:
-        nonlocal h_wall, v_wall, ft_image
+        nonlocal h_wall, v_wall
         nonlocal cell_size_x, cell_size_y
 
         if cell_size_x is None or cell_size_y is None:
@@ -165,14 +178,11 @@ def main() -> None:
             m.mlx_destroy_image(mlx, h_wall)
         if v_wall is not None:
             m.mlx_destroy_image(mlx, v_wall)
-        if ft_image is not None:
-            m.mlx_destroy_image(mlx, ft_image)
         h_wall = make_solid_image(
             cell_size_x + 1, 1, colors_rotation[wall_color_index])
         v_wall = make_solid_image(
             1, cell_size_y + 1, colors_rotation[wall_color_index])
-        ft_image = make_solid_image(
-            cell_size_x, cell_size_y, colors_rotation[ft_color_index])
+        rebuild_ft_image()
 
     def draw_cell(
             pos: List[int],
@@ -181,7 +191,7 @@ def main() -> None:
 
         nonlocal cell_size_x, cell_size_y
         nonlocal h_wall, v_wall, bg_image, start_image, end_image, ft_image
-        nonlocal solving_img, solved_img
+        nonlocal solving_img, solved_img, show_solution
 
         cell_pos_x = pos[0] * cell_size_x
         cell_pos_y = pos[1] * cell_size_y
@@ -200,12 +210,13 @@ def main() -> None:
                 m.mlx_put_image_to_window(
                     mlx, win, bg_image, cell_pos_x, cell_pos_y)
 
-            if cell.is_solved and not cell.is_solution:
-                m.mlx_put_image_to_window(
-                    mlx, win, solving_img, cell_pos_x, cell_pos_y)
-            elif cell.is_solved and cell.is_solution:
-                m.mlx_put_image_to_window(
-                    mlx, win, solved_img, cell_pos_x, cell_pos_y)
+            if cell.is_solved and show_solution:
+                if cell.is_solution:
+                    m.mlx_put_image_to_window(
+                        mlx, win, solved_img, cell_pos_x, cell_pos_y)
+                else:
+                    m.mlx_put_image_to_window(
+                        mlx, win, solving_img, cell_pos_x, cell_pos_y)
 
         if cell.north:
             m.mlx_put_image_to_window(mlx, win, h_wall, cell_pos_x, cell_pos_y)
@@ -240,6 +251,14 @@ def main() -> None:
             for i in range(generator.wid):
                 draw_cell([i, j], generator.maze.body[j][i])
 
+    def redraw_ft() -> None:
+        if generator is None:
+            return
+        for j in range(generator.height):
+            for i in range(generator.wid):
+                if generator.maze.body[j][i].is_ft:
+                    draw_cell([i, j], generator.maze.body[j][i])
+
     def render_commands_panel() -> None:
         title_color = 0x00FFD166
         text_color = 0x00CCCCCC
@@ -248,12 +267,14 @@ def main() -> None:
         for index, label in enumerate(command_hints):
             y = 110 + index * 32
             m.mlx_string_put(mlx, win, panel_x, y, text_color, label)
+            m.mlx_do_sync(mlx)
 
     def load_maze(algo_name: str) -> None:
         nonlocal started, generator, iterator, mode_selected
         nonlocal cell_size_x, cell_size_y, bg_image
         nonlocal start_image, end_image, imperfector, solver
         nonlocal solving, solving_img, solved_img, generated, solved
+        nonlocal show_solution
 
         mode_selected = algo_name
         generator = build_generator(algo_name)
@@ -263,6 +284,7 @@ def main() -> None:
         generated = False
         solving = False
         solved = False
+        show_solution = False
         imperfector = None
         iterator = None
         solver = None
@@ -289,7 +311,7 @@ def main() -> None:
         if not config['PERFECT']:
             imperfector = generator.make_imperfect()
         solving_img = make_solid_image(
-            cell_size_x, cell_size_y, 0x22FFFF00)
+            cell_size_x, cell_size_y, 0x88FFFF00)
         solved_img = make_solid_image(
             cell_size_x, cell_size_y, 0xFF3B2077)
         solver = generator.solve()
@@ -301,6 +323,7 @@ def main() -> None:
         nonlocal start_image, end_image, ft_image
         nonlocal imperfector, solver, solving, solving_img, solved_img
         nonlocal generated, wall_color_index, ft_color_index, solved
+        nonlocal show_solution
 
         # Exit with Esc
         if key == 65307:
@@ -308,8 +331,13 @@ def main() -> None:
 
         if (key == 65293 and mode_selected and generated and not solving
                 and not solved):
+            show_solution = True
             solving = True
             print("Solving...")
+
+        elif key == 65293 and solved and not solving:
+            show_solution = not show_solution
+            redraw_maze()
 
         if generated and not solving and (key == 104 or key == 72):
             load_maze('Hunt and kill')
@@ -324,8 +352,13 @@ def main() -> None:
 
         if generated and (key == 102 or key == 70):
             ft_color_index = (ft_color_index + 1) % len(colors_rotation)
-            rebuild_color_images()
-            redraw_maze()
+            rebuild_ft_image()
+            redraw_ft()
+
+        if generated and solved and not solving and (key == 111 or key == 79):
+            generator.output(config['OUTPUT_FILE'])
+        elif (key == 111 or key == 79):
+            print("You need to solve the maze before creating the output")
 
         # Menu selection
         if key == 65362 and not mode_selected:
@@ -361,21 +394,19 @@ def main() -> None:
 
         elif mode_selected and not solving:
             try:
-                for _ in range(60):
-                    iteration = next(iterator)
-                    x = iteration[0]
-                    y = iteration[1]
-                    redraw_zone(x, y)
+                iteration = next(iterator)
+                x = iteration[0]
+                y = iteration[1]
+                redraw_zone(x, y)
             except StopIteration:
                 if imperfector is None:
                     started = False
                 else:
                     try:
-                        for _ in range(60):
-                            iteration = next(imperfector)
-                            x = iteration[0]
-                            y = iteration[1]
-                            redraw_zone(x, y)
+                        iteration = next(imperfector)
+                        x = iteration[0]
+                        y = iteration[1]
+                        redraw_zone(x, y)
                     except StopIteration:
                         ...
                 generated = True
@@ -410,6 +441,7 @@ def main() -> None:
             text = f"{cursor}{label}"
 
             m.mlx_string_put(mlx, win, window_width * 3 // 7, y, color, text)
+            m.mlx_do_sync(mlx)
 
     def on_close(ctx: Any):
         m.mlx_loop_exit(mlx)
@@ -420,7 +452,6 @@ def main() -> None:
     m.mlx_hook(win, 33, 0, on_close, None)
     m.mlx_loop_hook(mlx, on_loop, None)
     m.mlx_loop(mlx)
-    generator.output("test_output.txt")
     destroy_runtime_images()
     m.mlx_loop_exit(mlx)
     m.mlx_destroy_window(mlx, win)

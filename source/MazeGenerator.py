@@ -62,8 +62,8 @@ class MazeGenerator(ABC):
 
     def make_imperfect(self) -> Generator:
         to_break = ceil(self.height * self.wid / 5)
-        valid_cells = [[x, y] for x in range(1, self.wid - 1)
-                       for y in range(1, self.height - 1)
+        valid_cells = [[x, y] for x in range(self.wid)
+                       for y in range(self.height)
                        if not self.maze.body[y][x].is_ft]
         while valid_cells and to_break:
             cell = self.random.choice(valid_cells)
@@ -140,7 +140,6 @@ class MazeGenerator(ABC):
         """Generate a formated string with the directions of the solution"""
         res: str = ""
         for i in range(len(self.solution) - 1):
-            print(self.solution[i])
             if (self.solution[i][0] - self.solution[i + 1][0]) != 0:
                 if (self.solution[i][0] - self.solution[i + 1][0]) > 0:
                     res = "".join([res, "W"])
@@ -157,14 +156,13 @@ class MazeGenerator(ABC):
         """ Method to output the maze body into a file """
         try:
             with open(filename, "r+") as f:
+                print(f"{filename} already exists, overwriting...")
                 f.seek(0)
                 f.truncate()
         except (FileNotFoundError):
-            print(f"creating {filename}...")
+            print(f"Creating {filename}...") 
         try:
             with open(filename, "a") as f:
-                print(f"width: {self.maze.wid}")
-                print(f"height: {self.maze.height}")
                 for y in range(self.maze.height):
                     line: str = ""
                     for x in range(self.maze.wid):
