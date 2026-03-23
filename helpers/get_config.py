@@ -5,6 +5,8 @@ def get_config(config_file: str) -> Dict[str, Any] | None:
     config = dict()
     with open(config_file, 'r') as file:
         for line in file:
+            if line.startswith('#'):
+                continue
             line = line.rstrip('\n')
             current = line.split(sep='=')
             config[current[0]] = current[1]
