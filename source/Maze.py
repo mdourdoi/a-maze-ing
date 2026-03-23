@@ -132,25 +132,25 @@ class Maze:
         """ Return a Dict with the unsolved Cell from a position """
         res = {}
         if (not self.is_top_border(y)
-            and not self.body[y - 1][x].is_solved
+            and not self.body[y - 1][x]._is_solved
                 and not self.body[y][x].is_ft
                 and not self.body[y - 1][x].south
                 and not self.body[y][x].north):
             res['north'] = (x, y - 1)
         if (not self.is_bot_border(y)
-            and not self.body[y + 1][x].is_solved
+            and not self.body[y + 1][x]._is_solved
                 and not self.body[y + 1][x].is_ft
                 and not self.body[y + 1][x].north
                 and not self.body[y][x].south):
             res['south'] = (x, y + 1)
         if (not self.is_right_border(x)
-            and not self.body[y][x + 1].is_solved
+            and not self.body[y][x + 1]._is_solved
                 and not self.body[y][x + 1].is_ft
                 and not self.body[y][x + 1].west
                 and not self.body[y][x].east):
             res['east'] = (x + 1, y)
         if (not self.is_left_border(x)
-            and not self.body[y][x - 1].is_solved
+            and not self.body[y][x - 1]._is_solved
                 and not self.body[y][x - 1].is_ft
                 and not self.body[y][x - 1].east
                 and not self.body[y][x].west):

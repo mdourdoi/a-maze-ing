@@ -61,7 +61,7 @@ class MazeGenerator(ABC):
             self.maze.body[y][x + 1]._create_west()
         if direction == 'west':
             self.maze.body[y][x]._create_west()
-            self.maze.body[y][x - 1]._create_east()
+            self.maze.body[y][x - 1].create_east()
 
     def _make_imperfect(self) -> Generator:
         to_break = ceil(self.height * self.wid / 5)
@@ -119,7 +119,7 @@ class MazeGenerator(ABC):
                 path.append((self.maze.entry[0], self.maze.entry[1]))
                 self.solution = list(reversed(path))
                 for data in self.solution:
-                    self.maze.body[data[1]][data[0]]._is_solution = True
+                    self.maze.body[data[1]][data[0]].is_solution = True
                     yield (data[0], data[1])
                 return
 

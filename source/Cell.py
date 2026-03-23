@@ -24,7 +24,7 @@ class MazeCell():
         self.is_end = is_end
         self._is_visited = is_visited
         self.is_ft = is_ft
-        self.is_solved = is_solved
+        self._is_solved = is_solved
         self._is_solution = is_solution
 
     def _visit(self) -> None:
@@ -44,7 +44,7 @@ class MazeCell():
 
     def _set_solved(self) -> None:
         """ Method to set the actual Cell to solved  """
-        self.is_solved = True
+        self._is_solved = True
 
     def _pop_north(self) -> None:
         '''Pops the northern wall, return WallError if there is no wall'''
