@@ -210,7 +210,7 @@ def main() -> None:
                 m.mlx_put_image_to_window(
                     mlx, win, bg_image, cell_pos_x, cell_pos_y)
 
-            if cell.is_solved and show_solution:
+            if cell._is_solved and show_solution:
                 if cell._is_solution:
                     m.mlx_put_image_to_window(
                         mlx, win, solved_img, cell_pos_x, cell_pos_y)
