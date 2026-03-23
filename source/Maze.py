@@ -45,9 +45,9 @@ class Maze:
         self.entry: List[int] = entry
         self.out: List[int] = out
         self.__set_forty_two_pattern()
-        if self.body[entry[1]][entry[0]].is_ft:
+        if self.body[entry[1]][entry[0]]._is_ft:
             raise ValueError("The entry can't be in the 42 in the middle")
-        if self.body[out[1]][out[0]].is_ft:
+        if self.body[out[1]][out[0]]._is_ft:
             raise ValueError("The exit can't be in the 42 in the middle")
 
     def is_top_border(self, y: int) -> bool:
@@ -66,19 +66,19 @@ class Maze:
         res = {}
         if (not self.is_top_border(y)
             and not self.body[y - 1][x]._is_visited
-                and not self.body[y - 1][x].is_ft):
+                and not self.body[y - 1][x]._is_ft):
             res['north'] = [x, y - 1]
         if (not self.is_bot_border(y)
             and not self.body[y + 1][x]._is_visited
-                and not self.body[y + 1][x].is_ft):
+                and not self.body[y + 1][x]._is_ft):
             res['south'] = [x, y + 1]
         if (not self.is_right_border(x)
             and not self.body[y][x + 1]._is_visited
-                and not self.body[y][x + 1].is_ft):
+                and not self.body[y][x + 1]._is_ft):
             res['east'] = [x + 1, y]
         if (not self.is_left_border(x)
             and not self.body[y][x - 1]._is_visited
-                and not self.body[y][x - 1].is_ft):
+                and not self.body[y][x - 1]._is_ft):
             res['west'] = [x - 1, y]
         return res
 
@@ -86,19 +86,19 @@ class Maze:
         res = {}
         if (not self.is_top_border(y)
             and self.body[y - 1][x]._is_visited
-                and not self.body[y - 1][x].is_ft):
+                and not self.body[y - 1][x]._is_ft):
             res['north'] = [x, y - 1]
         if (not self.is_bot_border(y)
             and self.body[y + 1][x]._is_visited
-                and not self.body[y + 1][x].is_ft):
+                and not self.body[y + 1][x]._is_ft):
             res['south'] = [x, y + 1]
         if (not self.is_right_border(x)
             and self.body[y][x + 1]._is_visited
-                and not self.body[y][x + 1].is_ft):
+                and not self.body[y][x + 1]._is_ft):
             res['east'] = [x + 1, y]
         if (not self.is_left_border(x)
             and self.body[y][x - 1]._is_visited
-                and not self.body[y][x - 1].is_ft):
+                and not self.body[y][x - 1]._is_ft):
             res['west'] = [x - 1, y]
         return res
 
@@ -107,22 +107,22 @@ class Maze:
         if (not self.is_top_border(y)
             and self.body[y - 1][x].south
             and self.body[y][x].north
-                and not self.body[y - 1][x].is_ft):
+                and not self.body[y - 1][x]._is_ft):
             res['north'] = [x, y - 1]
         if (not self.is_bot_border(y)
             and self.body[y + 1][x].north
             and self.body[y][x].south
-                and not self.body[y + 1][x].is_ft):
+                and not self.body[y + 1][x]._is_ft):
             res['south'] = [x, y + 1]
         if (not self.is_right_border(x)
             and self.body[y][x + 1].west
             and self.body[y][x].east
-                and not self.body[y][x + 1].is_ft):
+                and not self.body[y][x + 1]._is_ft):
             res['east'] = [x + 1, y]
         if (not self.is_left_border(x)
             and self.body[y][x - 1].east
             and self.body[y][x].west
-                and not self.body[y][x - 1].is_ft):
+                and not self.body[y][x - 1]._is_ft):
             res['west'] = [x - 1, y]
         return res
 
@@ -133,25 +133,25 @@ class Maze:
         res = {}
         if (not self.is_top_border(y)
             and not self.body[y - 1][x]._is_solved
-                and not self.body[y][x].is_ft
+                and not self.body[y][x]._is_ft
                 and not self.body[y - 1][x].south
                 and not self.body[y][x].north):
             res['north'] = (x, y - 1)
         if (not self.is_bot_border(y)
             and not self.body[y + 1][x]._is_solved
-                and not self.body[y + 1][x].is_ft
+                and not self.body[y + 1][x]._is_ft
                 and not self.body[y + 1][x].north
                 and not self.body[y][x].south):
             res['south'] = (x, y + 1)
         if (not self.is_right_border(x)
             and not self.body[y][x + 1]._is_solved
-                and not self.body[y][x + 1].is_ft
+                and not self.body[y][x + 1]._is_ft
                 and not self.body[y][x + 1].west
                 and not self.body[y][x].east):
             res['east'] = (x + 1, y)
         if (not self.is_left_border(x)
             and not self.body[y][x - 1]._is_solved
-                and not self.body[y][x - 1].is_ft
+                and not self.body[y][x - 1]._is_ft
                 and not self.body[y][x - 1].east
                 and not self.body[y][x].west):
             res['west'] = (x - 1, y)
@@ -173,7 +173,7 @@ class Maze:
         for j in range(5):
             for i in range(7):
                 if pattern[j][i] != ' ':
-                    self.body[start_y + j][start_x + i].is_ft = True
+                    self.body[start_y + j][start_x + i]._is_ft = True
 
     def __is_open_vertically(self, x: int, y: int) -> bool:
         return not self.body[y][x].south and not self.body[y + 1][x].north

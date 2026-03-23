@@ -21,9 +21,9 @@ class PrimGenerator(MazeGenerator):
                 self.maze._get_valid_neighbours(
                     cur_x, cur_y).values())}
         while frontier:
-            x, y = self.random.choice(sorted(frontier))
+            x, y = self._random.choice(sorted(frontier))
             self.maze.body[y][x]._visit()
-            direction = self.random.choice(
+            direction = self._random.choice(
                 list(self.maze._get_visited_neighbours(x, y)))
             self._carve(x, y, direction)
             frontier.remove((x, y))
