@@ -2,13 +2,13 @@
 
 ---
 
-# 🧩 A-MAZE-ING
+# A-MAZE-ING
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
 ![Status](https://img.shields.io/badge/Status-Completed-success)
 ![42](https://img.shields.io/badge/School-42-black)
 
-## 📖 Description
+## Description
 
 >
 > A-Maze-Ing is a Python3 project that combine Maze Generation, Maze Solving algorithms and 
@@ -23,8 +23,9 @@
 > be integrate in any project
 >
 
-### 🧠 TABLE OF CONTENT:
+### TABLE OF CONTENT:
 - Instructions
+- Project
 - Configuration
 - Maze Generation Algorithm
 - Maze Solver Algorithm
@@ -33,9 +34,9 @@
 
 ---
 
-## ⚙️ Instructions
+## Instructions
 
-### 📦 Installation
+### Installation
 
 ```bash
 # Clone the repository
@@ -53,8 +54,9 @@ make
 ```bash
 python3 a_maze_ing.py config.txt
 ```
+## Project
 
-## ⚙️ CONFIGURATION
+## CONFIGURATION
 
 ### CONFIG FILE
 
@@ -104,7 +106,7 @@ python3 a_maze_ing.py config.txt
 >       Specify a seed value to generate the Maze, different seed will generate different maze,
 >       keeping the same seed will result to generate the same Maze
 
-## ⚙️ MAZE GENERATION ALGORITHM
+## MAZE GENERATION ALGORITHM
 
 ### Prelude:
 
@@ -143,13 +145,74 @@ python3 a_maze_ing.py config.txt
 ### Prim
 
 > The Prim algorithm is much different from the Hunt And Kill, it begin from an arbitery cell
-> and expand from it. This strategy works with 2 list of cells
-
+> and expand from it. This strategy works with a list of unvisited cells, the frontier, that
+> contains all unvisited cell neighboring the maze. The algorithm will choose randomly one Cell
+> of the frontier, carve a path to the maze from it and remove the cell from the frontier, 
+> repeat until there is no cell in frontier. 
+>
+> #### Pseudo Code:
+>
+> ```
+>   Prim(start_cell):
+>       frontier = get_valid_neighbours(start_cell)
+>       while frontier:
+>            new_pos = choose_random_cell(frontier)
+>            frontier += get_valid_neighbours(new_pos)
+>            carve_to_maze(new_position)
+>            frontier.remove(new_position)
+> ```
+>
 ### Openning map
 
-> Destroy max 20% of the map randomely, but it can be modified whitin the code
+> The opening map algorithm is used to pass from a Perfect maze to an Imperfect. 
+> The algorithm is pretty straightforward, it try to destroy a wall randomly if 
+> the conditions are respected (Not creating corridors larger than 2 cells).
 
->## ⚙️ OUTPUT FILE
+## Maze Solver Algorithm
+
+### Prelude:
+> 
+> The project contains one solver algorithm and can't add anymore easily due to some
+> Architectural Constraint. The solving Algorithm is link to the MazeGenerator Class
+> it start automatically when the maze is generated.
+
+### A* Algorithm:
+
+> The A* Algorithm is used as a solving algorithm, because of his performance. It is 
+> an alternative to Dijkstra Algorithm which is used for graph exploration and pathfinding.
+> The main difference from Dijkstra is the use of an heuristic function h(n), the estimated 
+> distance from node n and the goal, and the use of g(n), the distance from the node n to the 
+> starting point. 
+>
+> The heuristic function h behave as a criteria to get the shortest path to the goal. Two type
+> of heuristic function are traditionaly use, the euclidian heuristic, which calculate the  
+> straight distance between 2 point and the Manhattan geometry which calculate the distance 
+> by doing the sum of the absolute difference of their respective Cartesian coordinates.
+>
+> The value of each node is calculated by making the sum f of the g(n) and h(n) functions.
+> At each step the algorithm picks a neighbor Cell and calculate the score f of that one,
+> if the cost of that node is inferior of the one corresponding node in the came_from list
+> it while replace it. This steps repeat until it find the Exit Cell or until there is no Cells
+> in the open list anymore. This method unsure us to find the shortest path from the start to 
+> the exit.
+>
+> #### Pseudo Code:
+>```
+>   a_star(start_position):
+>       open_list = [start_position]
+>       came_from = {}
+>       g_score{start_position: 0}
+>       f_score{start_position: h(start_position)}
+>       while open_list is not empty:
+>           current_pos = min_f_score_position
+>           if current_pos == exit:
+>               return reverse(came_from)
+>           for neighbor(current_position):
+>               if neighbor < came_from[neighbor]:
+>                   update came_from[neighbor] = current_pos
+>```
+
+>## OUTPUT FILE
 >    **output file format:**
 >    ```
 >       91393D1117
