@@ -5,8 +5,13 @@ def get_config(config_file: str) -> Dict[str, Any] | None:
     config = dict()
     with open(config_file, 'r') as file:
         for line in file:
+            if line.startswith('#'):
+                continue
             line = line.rstrip('\n')
             current = line.split(sep='=')
+            if len(current) != 2:
+                err = 'Invalid config file. All lines must be <KEY>=<VALUE>.'
+                raise ValueError(err)
             config[current[0]] = current[1]
     mandatory = ['WIDTH', 'HEIGHT', 'ENTRY', 'EXIT', 'OUTPUT_FILE', 'PERFECT']
     if not all(key in config for key in mandatory):
@@ -32,6 +37,9 @@ def get_config(config_file: str) -> Dict[str, Any] | None:
         if config['SEED'] == 'None':
             config['SEED'] = None
         else:
+            try:
+                int(config['SEED'])
+            except ValueError:
+                raise ValueError('Seed must be an int or None.')
             config['SEED'] = int(config['SEED'])
     return config
-
