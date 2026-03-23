@@ -267,6 +267,7 @@ def main() -> None:
         for index, label in enumerate(command_hints):
             y = 110 + index * 32
             m.mlx_string_put(mlx, win, panel_x, y, text_color, label)
+            m.mlx_do_sync(mlx)
 
     def load_maze(algo_name: str) -> None:
         nonlocal started, generator, iterator, mode_selected
@@ -440,6 +441,7 @@ def main() -> None:
             text = f"{cursor}{label}"
 
             m.mlx_string_put(mlx, win, window_width * 3 // 7, y, color, text)
+            m.mlx_do_sync(mlx)
 
     def on_close(ctx: Any):
         m.mlx_loop_exit(mlx)
