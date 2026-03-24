@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "a-maze-ing"
+version = "1.0.0"
+description = "Maze Generator project from 42 School"
+authors = ["mdouroi", "melschmi"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+mypy = "1.19.1"
+mlx = {file = "ressources/mlx-2.2-py3-none-any.whl"}
