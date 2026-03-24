@@ -29,8 +29,7 @@ def main() -> None:
         0xFF008000,
         0xFFFFFF00]
 
-    config_file = sys.argv
-    if len(config_file) != 2:
+    if len(sys.argv) != 2:
         print('Invalid arguments. ', end='')
         print('Please input only the name of the config file')
         return

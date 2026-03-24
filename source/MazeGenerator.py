@@ -1,7 +1,6 @@
 from .Maze import Maze
 from abc import ABC, abstractmethod
 from typing import List, Generator, Tuple
-from math import ceil
 import random
 
 
@@ -64,7 +63,7 @@ class MazeGenerator(ABC):
             self.maze.body[y][x - 1].create_east()
 
     def _make_imperfect(self) -> Generator:
-        to_break = ceil(self.height * self.wid / 5)
+        to_break = self.height * self.wid // 5
         valid_cells = [[x, y] for x in range(self.wid)
                        for y in range(self.height)
                        if not self.maze.body[y][x]._is_ft]
@@ -217,3 +216,16 @@ class MazeGenerator(ABC):
                     break
         if export:
             self._output(filename, False)
+
+    @classmethod
+    def basic_example(cls) -> "MazeGenerator":
+        """Create and generate a simple imperfect 20x15 maze example."""
+        generator = cls(
+            name=f"{cls.__name__} basic example",
+            entry=[0, 0],
+            out=[19, 14],
+            height=15,
+            wid=20,
+            seed=None)
+        generator.create_full_maze("", perfect=False, export=False)
+        return generator
