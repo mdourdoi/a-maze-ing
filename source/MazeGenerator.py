@@ -5,6 +5,7 @@ import random
 
 
 class MazeGenerator(ABC):
+    """Base class for maze generation, solving, and export workflows."""
 
     def __init__(self,
                  name: str,
@@ -13,6 +14,19 @@ class MazeGenerator(ABC):
                  height: int,
                  wid: int,
                  seed: int | None = None):
+        """Initialize a maze generator and its shared runtime state.
+
+        Args:
+            name: Human-readable name of the generator.
+            entry: Entry cell coordinates as [x, y].
+            out: Exit cell coordinates as [x, y].
+            height: Maze height in number of cells.
+            wid: Maze width in number of cells.
+            seed: Optional seed used for deterministic randomness.
+
+        Returns:
+            None: This constructor initializes the instance in place.
+        """
         if not str(name):
             raise ValueError('Please input a valid name')
         maze = Maze(height, wid, entry, out)
@@ -30,9 +44,25 @@ class MazeGenerator(ABC):
 
     @abstractmethod
     def _generate_maze(self) -> Generator[List[int], None, None]:
+        """Yield generation steps until the maze structure is complete.
+
+        Returns:
+            Generator[List[int], None, None]: A generator yielding the
+            coordinates of cells updated during generation.
+        """
         pass
 
     def _carve(self, x: int, y: int, direction: str) -> None:
+        """Open a wall between a cell and one of its neighbours.
+
+        Args:
+            x: Horizontal index of the source cell.
+            y: Vertical index of the source cell.
+            direction: Direction of the neighbouring cell to connect.
+
+        Returns:
+            None: This method mutates the maze walls in place.
+        """
         if direction == 'north':
             self.maze.body[y][x]._pop_north()
             self.maze.body[y - 1][x]._pop_south()
@@ -47,6 +77,16 @@ class MazeGenerator(ABC):
             self.maze.body[y][x - 1]._pop_east()
 
     def _restore(self, x: int, y: int, direction: str) -> None:
+        """Restore a wall previously removed between two adjacent cells.
+
+        Args:
+            x: Horizontal index of the source cell.
+            y: Vertical index of the source cell.
+            direction: Direction of the neighbouring cell to disconnect.
+
+        Returns:
+            None: This method mutates the maze walls in place.
+        """
         if direction == 'north':
             self.maze.body[y][x]._create_north()
             self.maze.body[y - 1][x]._create_south()
@@ -61,6 +101,12 @@ class MazeGenerator(ABC):
             self.maze.body[y][x - 1]._create_east()
 
     def _make_imperfect(self) -> Generator[List[int], None, None]:
+        """Break additional walls to create loops in the generated maze.
+
+        Returns:
+            Generator[List[int], None, None]: A generator yielding the
+            coordinates of cells modified while relaxing the maze.
+        """
         to_break = self.height * self.wid // 5
         valid_cells = [[x, y] for x in range(self.wid)
                        for y in range(self.height)
@@ -86,12 +132,26 @@ class MazeGenerator(ABC):
     def __calculate_heuristic(self,
                               current_position: Tuple[int, int],
                               next_position: Tuple[int, int]) -> float:
-        """ Method to calculate the heuristic value of two position """
+        """Compute the Manhattan distance between two positions.
+
+        Args:
+            current_position: Starting position as an (x, y) tuple.
+            next_position: Target position as an (x, y) tuple.
+
+        Returns:
+            float: Heuristic distance used by the solver.
+        """
         return abs(next_position[0] - current_position[0]) + \
             abs(next_position[1] - current_position[1])
 
     def _solve(self) -> Generator[Tuple[int, int], None, None]:
-        """ Method to return a generator for the solver """
+        """Solve the maze and yield visited or solution cells step by step.
+
+        Returns:
+            Generator[Tuple[int, int], None, None]: A generator yielding cell
+            coordinates as the search progresses and when the final path is
+            reconstructed.
+        """
         open_list = [(self.maze.entry[0], self.maze.entry[1])]
         came_from: Dict[Tuple[int, int], Tuple[int, int]] = {}
 
@@ -138,7 +198,11 @@ class MazeGenerator(ABC):
             yield ((current[0], current[1]))
 
     def __solution_string(self) -> str:
-        """Generate a formated string with the directions of the solution"""
+        """Convert the solved path into cardinal movement instructions.
+
+        Returns:
+            str: A compact string made of N, S, E, and W directions.
+        """
         res: str = ""
         for i in range(len(self.solution) - 1):
             if (self.solution[i][0] - self.solution[i + 1][0]) != 0:
@@ -154,7 +218,15 @@ class MazeGenerator(ABC):
         return res
 
     def _output(self, filename: str, verbose: bool = True) -> None:
-        """ Method to output the maze body into a file """
+        """Write the maze grid, endpoints, and solution path to a file.
+
+        Args:
+            filename: Path of the output file to create or overwrite.
+            verbose: Whether to print status messages during export.
+
+        Returns:
+            None: This method writes the serialized maze to disk.
+        """
         try:
             with open(filename, "r+") as f:
                 if verbose:
@@ -183,6 +255,11 @@ class MazeGenerator(ABC):
             print({e})
 
     def reset_maze(self) -> None:
+        """Reset the maze and clear generation and solving state.
+
+        Returns:
+            None: This method replaces the current maze in place.
+        """
         self.maze = Maze(self.height, self.wid, self.entry, self.out)
         self.is_solved = False
         self.is_generated = False
@@ -193,8 +270,16 @@ class MazeGenerator(ABC):
             filename: str,
             perfect: bool,
             export: bool = False) -> None:
-        """ Generates the maze, renders it imperfect is perfect is set to
-        False, then exports the filename """
+        """Generate, solve, and optionally export a complete maze.
+
+        Args:
+            filename: Output file used when export is enabled.
+            perfect: Whether to keep the maze perfect or add extra openings.
+            export: Whether to serialize the final maze to a file.
+
+        Returns:
+            None: This method drives the full maze lifecycle in place.
+        """
         if not self.is_generated:
             creator = self._generate_maze()
             while not self.is_generated:
@@ -222,7 +307,11 @@ class MazeGenerator(ABC):
 
     @classmethod
     def basic_example(cls) -> "MazeGenerator":
-        """Create and generate a simple imperfect 20x15 maze example."""
+        """Build a ready-to-use imperfect maze example.
+
+        Returns:
+            MazeGenerator: A generated example instance of the concrete class.
+        """
         generator = cls(
             name=f"{cls.__name__} basic example",
             entry=[0, 0],
