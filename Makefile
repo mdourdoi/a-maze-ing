@@ -11,7 +11,7 @@ PYPROJECT_TOML := pyproject.toml
 
 $(INSTALL_STAMP): $(PYPROJECT_TOML) scripts/setup_env.sh
 	./scripts/setup_env.sh $(ENV_NAME)
-	. $(ENV_NAME)/bin/activate && $(POETRY) install
+	. $(ENV_NAME)/bin/activate && $(POETRY) install --with a-maze-ing
 	touch $(INSTALL_STAMP)
 
 install: $(INSTALL_STAMP)
