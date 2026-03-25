@@ -1,5 +1,5 @@
 from .Cell import MazeCell
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 
 class Maze:
@@ -130,7 +130,7 @@ class Maze:
 
     def _get_unsolved_neighbours(self,
                                  x: int,
-                                 y: int) -> List[Tuple[int, int]]:
+                                 y: int) -> Dict[str, tuple[int, int]]:
         """ Return a Dict with the unsolved Cell from a position """
         res = {}
         if (not self.is_top_border(y)

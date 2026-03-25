@@ -1,6 +1,6 @@
 from .Maze import Maze
 from abc import ABC, abstractmethod
-from typing import List, Generator, Tuple
+from typing import List, Generator, Tuple, Dict
 import random
 
 
@@ -26,10 +26,10 @@ class MazeGenerator(ABC):
         self._random = random.Random(seed)
         self.is_solved = False
         self.is_generated = False
-        self.solution = []
+        self.solution: List[Tuple[int, int]] = []
 
     @abstractmethod
-    def _generate_maze(self) -> Generator:
+    def _generate_maze(self) -> Generator[List[int], None, None]:
         pass
 
     def _carve(self, x: int, y: int, direction: str) -> None:
@@ -60,7 +60,7 @@ class MazeGenerator(ABC):
             self.maze.body[y][x]._create_west()
             self.maze.body[y][x - 1]._create_east()
 
-    def _make_imperfect(self) -> Generator:
+    def _make_imperfect(self) -> Generator[List[int], None, None]:
         to_break = self.height * self.wid // 5
         valid_cells = [[x, y] for x in range(self.wid)
                        for y in range(self.height)
@@ -78,7 +78,7 @@ class MazeGenerator(ABC):
             if self.maze._is_valid():
                 valid_cells.remove([cell[0], cell[1]])
                 to_break -= 1
-                yield [cell[0], cell[1], direction]
+                yield [cell[0], cell[1]]
             else:
                 self._restore(cell[0], cell[1], direction)
                 valid_cells.remove([cell[0], cell[1]])
@@ -90,10 +90,10 @@ class MazeGenerator(ABC):
         return abs(next_position[0] - current_position[0]) + \
             abs(next_position[1] - current_position[1])
 
-    def _solve(self) -> Generator:
+    def _solve(self) -> Generator[Tuple[int, int], None, None]:
         """ Method to return a generator for the solver """
         open_list = [(self.maze.entry[0], self.maze.entry[1])]
-        came_from = {}
+        came_from: Dict[Tuple[int, int], Tuple[int, int]] = {}
 
         g_score = {(self.maze.entry[0], self.maze.entry[1]): 0}
         f_score = {(self.maze.entry[0], self.maze.entry[1]):
@@ -103,7 +103,7 @@ class MazeGenerator(ABC):
 
         while open_list:
             current = min(
-                open_list, key=lambda x: f_score.get(x))
+                open_list, key=lambda x: f_score[x])
             self.maze.body[current[1]][current[0]]._set_solved()
 
             if current == (self.maze.out[0], self.maze.out[1]):
@@ -182,7 +182,7 @@ class MazeGenerator(ABC):
         except Exception as e:
             print({e})
 
-    def reset_maze(self):
+    def reset_maze(self) -> None:
         self.maze = Maze(self.height, self.wid, self.entry, self.out)
         self.is_solved = False
         self.is_generated = False

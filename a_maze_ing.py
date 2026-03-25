@@ -1,6 +1,6 @@
 from helpers import get_config
 from mlx import Mlx
-from typing import Any, List, Generator
+from typing import Any, List, Generator, Tuple
 from source import MazeCell, Maze, MazeGenerator
 from generators import HuntAndKillGenerator, PrimGenerator
 import sys
@@ -61,11 +61,11 @@ def main() -> None:
     selected = 0
     blink_on = True
     generator: MazeGenerator | None = None
-    imperfector: Generator | None = None
+    imperfector: Generator[List[int], None, None] | None = None
     frame = 0
-    creator: Generator | None = None
+    creator: Generator[List[int], None, None] | None = None
     generated = False
-    solver: Generator | None = None
+    solver: Generator[Tuple[int, int], None, None] | None = None
     solving = False
     solved = False
     show_solution = False
@@ -73,8 +73,8 @@ def main() -> None:
     started = False
     spongebob_path = './assets/spongebob.png'
     img, w, h = m.mlx_png_file_to_image(mlx, spongebob_path)
-    cell_size_x = None
-    cell_size_y = None
+    cell_size_x: int = 0
+    cell_size_y: int = 0
     h_wall = None
     v_wall = None
     bg_image = None
@@ -158,7 +158,6 @@ def main() -> None:
 
     def rebuild_ft_image() -> None:
         nonlocal ft_image
-        nonlocal cell_size_x, cell_size_y
 
         if cell_size_x is None or cell_size_y is None:
             return
@@ -169,7 +168,6 @@ def main() -> None:
 
     def rebuild_color_images() -> None:
         nonlocal h_wall, v_wall
-        nonlocal cell_size_x, cell_size_y
 
         if cell_size_x is None or cell_size_y is None:
             return
@@ -187,10 +185,6 @@ def main() -> None:
             pos: List[int],
             cell: MazeCell,
             draw_background: bool = True) -> None:
-
-        nonlocal cell_size_x, cell_size_y
-        nonlocal h_wall, v_wall, bg_image, start_image, end_image, ft_image
-        nonlocal solving_img, solved_img, show_solution
 
         cell_pos_x = pos[0] * cell_size_x
         cell_pos_y = pos[1] * cell_size_y
@@ -229,6 +223,9 @@ def main() -> None:
                 mlx, win, v_wall, cell_pos_x + cell_size_x, cell_pos_y)
 
     def redraw_zone(x: int, y: int) -> None:
+
+        assert generator is not None
+
         cells = []
         for j in range(max(0, y - 1), min(generator.height, y + 2)):
             for i in range(max(0, x - 1), min(generator.wid, x + 2)):
@@ -317,11 +314,9 @@ def main() -> None:
 
     def on_key(key: int, ctx: Any) -> None:
 
-        nonlocal started, generator, creator, selected, mode_selected
-        nonlocal cell_size_x, cell_size_y, v_wall, h_wall, bg_image
-        nonlocal start_image, end_image, ft_image
-        nonlocal imperfector, solver, solving, solving_img, solved_img
-        nonlocal generated, wall_color_index, ft_color_index, solved
+        nonlocal selected, mode_selected
+        nonlocal solving
+        nonlocal wall_color_index, ft_color_index
         nonlocal show_solution
 
         # Exit with Esc
@@ -355,6 +350,7 @@ def main() -> None:
             redraw_ft()
 
         if generated and solved and not solving and (key == 111 or key == 79):
+            assert generator is not None
             generator._output(config['OUTPUT_FILE'])
         elif (key == 111 or key == 79):
             print("You need to solve the maze before creating the output")
@@ -380,8 +376,8 @@ def main() -> None:
             load_maze(mode_selected)
 
     def on_loop(ctx: Any) -> None:
-        nonlocal started, creator, frame, blink_on
-        nonlocal imperfector, generator, generated
+        nonlocal started, frame, blink_on
+        nonlocal generated
         nonlocal solved, solving
 
         if mode_selected is None:
@@ -392,6 +388,7 @@ def main() -> None:
                 return
 
         elif mode_selected and not solving:
+            assert creator is not None
             try:
                 iteration = next(creator)
                 x = iteration[0]
@@ -411,10 +408,12 @@ def main() -> None:
                 generated = True
 
         elif generated and solving:
+            assert generator is not None
+            assert solver is not None
             try:
-                iteration = next(solver)
-                x = iteration[0]
-                y = iteration[1]
+                iteration_solve = next(solver)
+                x = iteration_solve[0]
+                y = iteration_solve[1]
                 draw_cell([x, y], generator.maze.body[y][x])
             except StopIteration:
                 solving = False
@@ -422,7 +421,7 @@ def main() -> None:
                     solved = True
                     print('Solved !')
 
-    def render_menu():
+    def render_menu() -> None:
         m.mlx_clear_window(mlx, win)
         m.mlx_put_image_to_window(
             mlx,
@@ -442,7 +441,7 @@ def main() -> None:
             m.mlx_string_put(mlx, win, window_width * 3 // 7, y, color, text)
         m.mlx_do_sync(mlx)
 
-    def on_close(ctx: Any):
+    def on_close(ctx: Any) -> None:
         m.mlx_loop_exit(mlx)
 
     # Launching MLX

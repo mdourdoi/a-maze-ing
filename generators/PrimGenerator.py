@@ -13,7 +13,7 @@ class PrimGenerator(MazeGenerator):
                  seed: int | None = None):
         super().__init__(name, entry, out, height, wid, seed)
 
-    def _generate_maze(self) -> Generator:
+    def _generate_maze(self) -> Generator[List[int], None, None]:
         cur_x, cur_y = self.maze.entry[0], self.maze.entry[1]
         self.maze.body[cur_y][cur_x]._visit()
         frontier = {
