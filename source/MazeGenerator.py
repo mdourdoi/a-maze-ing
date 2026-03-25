@@ -26,7 +26,7 @@ class MazeGenerator(ABC):
         self._random = random.Random(seed)
         self.is_solved = False
         self.is_generated = False
-        self.solution = []
+        self.solution: list[str] = []
 
     @abstractmethod
     def _generate_maze(self) -> Generator:
@@ -93,7 +93,7 @@ class MazeGenerator(ABC):
     def _solve(self) -> Generator:
         """ Method to return a generator for the solver """
         open_list = [(self.maze.entry[0], self.maze.entry[1])]
-        came_from = {}
+        came_from: set[tuple[int, int]] = set()
 
         g_score = {(self.maze.entry[0], self.maze.entry[1]): 0}
         f_score = {(self.maze.entry[0], self.maze.entry[1]):
