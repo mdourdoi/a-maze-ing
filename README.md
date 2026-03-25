@@ -255,6 +255,28 @@ The arguments to pass to instanciate a generator are self explanatory, you just 
 
 Here is a list of what can be safely used and how it works :
 
+### Minimal example
+
+```python
+from generators import PrimGenerator
+
+generator = PrimGenerator(
+    name="demo",
+    entry=[0, 0],
+    out=[19, 14],
+    height=15,
+    wid=20,
+    seed=42,
+)
+
+generator.create_full_maze("demo_maze.txt", perfect=True, export=True)
+
+##Get the path of the solution cell by cell
+print(generator.solution)
+```
+
+This example shows how to instantiate a generator with custom parameters, generate a maze, export it to a file, and access both the solution and the generated structure.
+
 ### Attributes
 
 - Cell :

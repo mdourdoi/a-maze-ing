@@ -43,7 +43,7 @@ def main() -> None:
         print('Please input only the name of the config file')
         return
     try:
-        config = get_config('config.txt')
+        config = get_config(sys.argv[1])
         Maze(
             config['HEIGHT'],
             config['WIDTH'],
@@ -62,9 +62,39 @@ def main() -> None:
         return
 
     m = Mlx()
-    mlx = m.mlx_init()
-    win = m.mlx_new_window(
-        mlx, window_width + 1, window_height + 1, 'Maze renderer')
+    mlx = None
+    win = None
+    img = None
+    w = 0
+    h = 0
+
+    try:
+        mlx = m.mlx_init()
+        if mlx is None:
+            print('Error: unable to initialize MLX')
+            return
+
+        win = m.mlx_new_window(
+            mlx, window_width + 1, window_height + 1, 'Maze renderer')
+        if win is None:
+            print('Error: unable to create the MLX window')
+            m.mlx_release(mlx)
+            return
+
+        spongebob_path = './assets/spongebob.png'
+        img, w, h = m.mlx_png_file_to_image(mlx, spongebob_path)
+        if img is None:
+            print(f"Error: unable to load image: {spongebob_path}")
+            m.mlx_destroy_window(mlx, win)
+            m.mlx_release(mlx)
+            return
+    except Exception as cur_error:
+        print(f"Error while initializing the graphical interface: {cur_error}")
+        if win is not None and mlx is not None:
+            m.mlx_destroy_window(mlx, win)
+        if mlx is not None:
+            m.mlx_release(mlx)
+        return
 
     menu_items = ["Prim's algorithm", 'Hunt and kill', 'Quit']
     selected = 0
@@ -80,8 +110,7 @@ def main() -> None:
     show_solution = False
     mode_selected = None
     started = False
-    spongebob_path = './assets/spongebob.png'
-    img, w, h = m.mlx_png_file_to_image(mlx, spongebob_path)
+
     cell_size_x: int = 0
     cell_size_y: int = 0
     h_wall = None
@@ -568,15 +597,20 @@ def main() -> None:
         m.mlx_loop_exit(mlx)
 
     # Launching MLX
-    m.mlx_clear_window(mlx, win)
-    m.mlx_key_hook(win, on_key, None)
-    m.mlx_hook(win, 33, 0, on_close, None)
-    m.mlx_loop_hook(mlx, on_loop, None)
-    m.mlx_loop(mlx)
-    destroy_runtime_images()
-    m.mlx_loop_exit(mlx)
-    m.mlx_destroy_window(mlx, win)
-    m.mlx_release(mlx)
+    try:
+        m.mlx_clear_window(mlx, win)
+        m.mlx_key_hook(win, on_key, None)
+        m.mlx_hook(win, 33, 0, on_close, None)
+        m.mlx_loop_hook(mlx, on_loop, None)
+        m.mlx_loop(mlx)
+    except Exception as cur_error:
+        print(f"Error during graphical execution: {cur_error}")
+    finally:
+        destroy_runtime_images()
+        if win is not None:
+            m.mlx_destroy_window(mlx, win)
+        if mlx is not None:
+            m.mlx_release(mlx)
 
 
 if __name__ == "__main__":

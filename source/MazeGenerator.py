@@ -252,7 +252,7 @@ class MazeGenerator(ABC):
                 f.write(f"\n{self.maze.out[0]},{self.maze.out[1]}\n")
                 f.write(self.__solution_string())
         except Exception as e:
-            print({e})
+            print(f"Error while writing output file: {e}")
 
     def reset_maze(self) -> None:
         """Reset the maze and clear generation and solving state.
