@@ -44,6 +44,8 @@ class Maze:
         self.wid: int = wid
         self.entry: List[int] = entry
         self.out: List[int] = out
+        self.body[entry[1]][entry[0]].is_start = True
+        self.body[out[1]][out[0]].is_end = True
         self.__set_forty_two_pattern()
         if self.body[entry[1]][entry[0]]._is_ft:
             raise ValueError("The entry can't be in the 42 in the middle")

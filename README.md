@@ -251,7 +251,7 @@ This whole project was also made to be used outside of the visual interface, so 
 
 Since we need a lot of things for the display and not all of them can be used as they are, it is highly **NOT** recommended to use the methods starting with an underscord without knowing how all this project works. Lots of attributes are open in case you want to tweak the maze, you can modify it at your own risk.
 
-The arguments to pass to instanciate an instance of a generator are self explanatory, you just need to create an instance of your choosen generator (PrimGenerator or HuntAndKillGenerator) and pass the arguments.
+The arguments to pass to instanciate a generator are self explanatory, you just need to create an instance of your choosen generator (PrimGenerator or HuntAndKillGenerator) and pass the arguments when creating the object.
 
 Here is a list of what can be safely used and how it works :
 

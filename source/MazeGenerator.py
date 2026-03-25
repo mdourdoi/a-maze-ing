@@ -20,8 +20,6 @@ class MazeGenerator(ABC):
         self.out = out
         self.name = str(name)
         self.maze = maze
-        self.maze.body[entry[1]][entry[0]].is_start = True
-        self.maze.body[out[1]][out[0]].is_end = True
         self.height = height
         self.wid = wid
         self.seed = seed
@@ -60,7 +58,7 @@ class MazeGenerator(ABC):
             self.maze.body[y][x + 1]._create_west()
         if direction == 'west':
             self.maze.body[y][x]._create_west()
-            self.maze.body[y][x - 1].create_east()
+            self.maze.body[y][x - 1]._create_east()
 
     def _make_imperfect(self) -> Generator:
         to_break = self.height * self.wid // 5
@@ -204,7 +202,12 @@ class MazeGenerator(ABC):
                     next(creator)
                 except StopIteration:
                     if not perfect:
-                        self._make_imperfect()
+                        imperfector = self._make_imperfect()
+                        while True:
+                            try:
+                                next(imperfector)
+                            except StopIteration:
+                                break
                     self.is_generated = True
         if not self.is_solved:
             solver = self._solve()
