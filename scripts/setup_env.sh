@@ -6,9 +6,10 @@ VENV=$1
 
 echo -e "${GREEN}[SCRIPT]${RESET} === Setting up new env ==="
 echo -e "${GREEN}[SCRIPT]${RESET} Cleaning env..."
-rm -rf ${VENV}
-echo -e "${GREEN}[SCRIPT]${RESET} Creating Virtual env ${VENV}..."
-python3 -m venv ${VENV}
+if [ ! -d "${VENV}" ]; then
+	echo -e "${GREEN}[SCRIPT]${RESET} Creating Virtual env ${VENV}..."
+	python3 -m venv "${VENV}"
+fi
 echo -e "${GREEN}[SCRIPT] SUCCESS !${RESET} "
 
 

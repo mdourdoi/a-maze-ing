@@ -1,32 +1,39 @@
-ENV_NAME=maze_env
-CONFIG_FILE=config.txt
-PYTHON := $(ENV_NAME)/bin/python
+ENV_NAME := maze_env
+CONFIG_FILE := config.txt
 
-POETRY_LOCK := poetry.lock
+PYTHON := $(ENV_NAME)/bin/python
+POETRY := $(ENV_NAME)/bin/poetry
+FLAKE8 := $(ENV_NAME)/bin/flake8
+MYPY := $(ENV_NAME)/bin/mypy
+INSTALL_STAMP := $(ENV_NAME)/.installed
+
 PYPROJECT_TOML := pyproject.toml
 
-install: $(PYPROJECT_TOML) $(POETRY_TOML) | $(PYTHON)
-	make venv
-	. $(ENV_NAME)/bin/activate && poetry install
+$(INSTALL_STAMP): $(PYPROJECT_TOML) scripts/setup_env.sh
+	./scripts/setup_env.sh $(ENV_NAME)
+	. $(ENV_NAME)/bin/activate && $(POETRY) install
+	touch $(INSTALL_STAMP)
 
-venv:
-	./scripts/setup_env.sh ${ENV_NAME}
+install: $(INSTALL_STAMP)
 
-run:
-	$(PYTHON) a_maze_ing.py ${CONFIG_FILE}
+run: $(INSTALL_STAMP)
+	$(PYTHON) a_maze_ing.py $(CONFIG_FILE)
 
-debug:
-	$(PYTHON) -m pdb a_maze_ing.py ${CONFIG_FILE}
+debug: $(INSTALL_STAMP)
+	$(PYTHON) -m pdb a_maze_ing.py $(CONFIG_FILE)
+
+lint: $(INSTALL_STAMP)
+	$(FLAKE8) . --exclude $(ENV_NAME)
+	$(MYPY) . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+
+lint-strict: $(INSTALL_STAMP)
+	$(FLAKE8) . --exclude $(ENV_NAME)
+	$(MYPY) . --strict
 
 clean:
-	rm -rf ${ENV_NAME}
+	rm -rf $(ENV_NAME)
 	find . -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
 	rm -rf .mypy_cache .pytest_cache build dist *.egg-info
+	rm -f poetry.lock
 
-lint:
-	$(ENV_NAME)/bin/flake8 $(SRC)
-	$(ENV_NAME)/bin/mypy $(SRC) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
-
-lint-strict: install
-	flake8 $(SRC) 
-	mypy $(SRC) --strict
+.PHONY: install run debug clean lint lint-strict

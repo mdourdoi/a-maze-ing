@@ -13,4 +13,5 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.10"
 mypy = "1.19.1"
+flake8 = "7.3.0"
 mlx = {file = "ressources/mlx-2.2-py3-none-any.whl"}
