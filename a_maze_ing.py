@@ -158,7 +158,6 @@ def main() -> None:
 
     def rebuild_ft_image() -> None:
         nonlocal ft_image
-        nonlocal cell_size_x, cell_size_y
 
         if cell_size_x is None or cell_size_y is None:
             return
@@ -169,7 +168,6 @@ def main() -> None:
 
     def rebuild_color_images() -> None:
         nonlocal h_wall, v_wall
-        nonlocal cell_size_x, cell_size_y
 
         if cell_size_x is None or cell_size_y is None:
             return
@@ -187,10 +185,6 @@ def main() -> None:
             pos: List[int],
             cell: MazeCell,
             draw_background: bool = True) -> None:
-
-        nonlocal cell_size_x, cell_size_y
-        nonlocal h_wall, v_wall, bg_image, start_image, end_image, ft_image
-        nonlocal solving_img, solved_img, show_solution
 
         cell_pos_x = pos[0] * cell_size_x
         cell_pos_y = pos[1] * cell_size_y
@@ -317,11 +311,9 @@ def main() -> None:
 
     def on_key(key: int, ctx: Any) -> None:
 
-        nonlocal started, generator, creator, selected, mode_selected
-        nonlocal cell_size_x, cell_size_y, v_wall, h_wall, bg_image
-        nonlocal start_image, end_image, ft_image
-        nonlocal imperfector, solver, solving, solving_img, solved_img
-        nonlocal generated, wall_color_index, ft_color_index, solved
+        nonlocal selected, mode_selected
+        nonlocal solving
+        nonlocal wall_color_index, ft_color_index
         nonlocal show_solution
 
         # Exit with Esc
@@ -380,8 +372,8 @@ def main() -> None:
             load_maze(mode_selected)
 
     def on_loop(ctx: Any) -> None:
-        nonlocal started, creator, frame, blink_on
-        nonlocal imperfector, generator, generated
+        nonlocal started, frame, blink_on
+        nonlocal generated
         nonlocal solved, solving
 
         if mode_selected is None:
