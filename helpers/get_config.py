@@ -1,7 +1,7 @@
 from typing import Dict, Any
 
 
-def get_config(config_file: str) -> Dict[str, Any] | None:
+def get_config(config_file: str) -> Dict[str, Any]:
     config: Dict[Any, Any] = dict()
     with open(config_file, 'r') as file:
         for line in file:

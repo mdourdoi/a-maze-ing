@@ -18,6 +18,11 @@ mypy = "1.19.1"
 flake8 = "7.3.0"
 mlx = {file = "ressources/mlx-2.2-py3-none-any.whl"}
 
+[tool.mypy]
+[[tool.mypy.overrides]]
+module = ["mlx"]
+ignore_missing_imports = true
+
 [build-system]
 requires = ["poetry-core>=1.8.0"]
 build-backend = "poetry.core.masonry.api"

@@ -1,5 +1,5 @@
 from .Cell import MazeCell
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 
 class Maze:
