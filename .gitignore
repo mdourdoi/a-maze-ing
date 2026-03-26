@@ -1,0 +1,15 @@
+# Python bytecode and caches
+__pycache__/
+
+
+# Type checker and test caches
+.mypy_cache/
+
+# Virtual environments
+maze_env/
+
+# Build and packaging artifacts
+dist/
+
+# Editor and OS files
+.vscode/

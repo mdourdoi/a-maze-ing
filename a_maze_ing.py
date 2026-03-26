@@ -7,6 +7,15 @@ import sys
 
 
 def main() -> None:
+    """Run the maze application and manage the MLX event loop.
+
+    The function validates the configuration, initializes the rendering
+    context, lets the user choose a generation algorithm, animates maze
+    creation and solving, and handles window teardown.
+
+    Returns:
+        None: This function is used for its side effects only.
+    """
 
     maze_width = 1200
     maze_height = 800
@@ -34,7 +43,7 @@ def main() -> None:
         print('Please input only the name of the config file')
         return
     try:
-        config = get_config('config.txt')
+        config = get_config(sys.argv[1])
         Maze(
             config['HEIGHT'],
             config['WIDTH'],
@@ -53,9 +62,39 @@ def main() -> None:
         return
 
     m = Mlx()
-    mlx = m.mlx_init()
-    win = m.mlx_new_window(
-        mlx, window_width + 1, window_height + 1, 'Maze renderer')
+    mlx = None
+    win = None
+    img = None
+    w = 0
+    h = 0
+
+    try:
+        mlx = m.mlx_init()
+        if mlx is None:
+            print('Error: unable to initialize MLX')
+            return
+
+        win = m.mlx_new_window(
+            mlx, window_width + 1, window_height + 1, 'Maze renderer')
+        if win is None:
+            print('Error: unable to create the MLX window')
+            m.mlx_release(mlx)
+            return
+
+        spongebob_path = './assets/spongebob.png'
+        img, w, h = m.mlx_png_file_to_image(mlx, spongebob_path)
+        if img is None:
+            print(f"Error: unable to load image: {spongebob_path}")
+            m.mlx_destroy_window(mlx, win)
+            m.mlx_release(mlx)
+            return
+    except Exception as cur_error:
+        print(f"Error while initializing the graphical interface: {cur_error}")
+        if win is not None and mlx is not None:
+            m.mlx_destroy_window(mlx, win)
+        if mlx is not None:
+            m.mlx_release(mlx)
+        return
 
     menu_items = ["Prim's algorithm", 'Hunt and kill', 'Quit']
     selected = 0
@@ -71,8 +110,7 @@ def main() -> None:
     show_solution = False
     mode_selected = None
     started = False
-    spongebob_path = './assets/spongebob.png'
-    img, w, h = m.mlx_png_file_to_image(mlx, spongebob_path)
+
     cell_size_x: int = 0
     cell_size_y: int = 0
     h_wall = None
@@ -87,6 +125,16 @@ def main() -> None:
     ft_color_index = colors_rotation.index(0xFFFFFFFF)
 
     def make_solid_image(w: int, h: int, color: int) -> Any:
+        """Create a solid-color MLX image.
+
+        Args:
+            w: Width of the image in pixels.
+            h: Height of the image in pixels.
+            color: RGBA color packed as an integer.
+
+        Returns:
+            Any: The MLX image handle filled with the requested color.
+        """
         img = m.mlx_new_image(mlx, w, h)
         data, bpp, sl, _ = m.mlx_get_data_addr(img)
         byte_per_pixel = bpp // 8
@@ -99,6 +147,11 @@ def main() -> None:
         return img
 
     def destroy_runtime_images() -> None:
+        """Release all images allocated during the current application run.
+
+        Returns:
+            None: This function frees MLX image resources in place.
+        """
         nonlocal img
 
         destroy_maze_images()
@@ -107,6 +160,11 @@ def main() -> None:
             img = None
 
     def destroy_maze_images() -> None:
+        """Release images associated with the currently loaded maze.
+
+        Returns:
+            None: This function frees MLX image resources in place.
+        """
         nonlocal h_wall, v_wall, bg_image
         nonlocal start_image, end_image, ft_image, solving_img, solved_img
 
@@ -136,6 +194,15 @@ def main() -> None:
             solved_img = None
 
     def build_generator(algo_name: str) -> MazeGenerator | None:
+        """Instantiate a maze generator for the selected algorithm.
+
+        Args:
+            algo_name: Human-readable name of the chosen algorithm.
+
+        Returns:
+            MazeGenerator | None: The matching generator instance, or
+            None when the name is unsupported.
+        """
         if algo_name == 'Hunt and kill':
             return HuntAndKillGenerator(
                 name="hunt-and-kill",
@@ -157,6 +224,11 @@ def main() -> None:
         return None
 
     def rebuild_ft_image() -> None:
+        """Recreate the image used for frontier cells.
+
+        Returns:
+            None: This function refreshes the cached MLX image in place.
+        """
         nonlocal ft_image
 
         if cell_size_x is None or cell_size_y is None:
@@ -167,6 +239,11 @@ def main() -> None:
             cell_size_x, cell_size_y, colors_rotation[ft_color_index])
 
     def rebuild_color_images() -> None:
+        """Recreate wall images using the currently selected colors.
+
+        Returns:
+            None: This function refreshes the cached MLX images in place.
+        """
         nonlocal h_wall, v_wall
 
         if cell_size_x is None or cell_size_y is None:
@@ -185,6 +262,16 @@ def main() -> None:
             pos: List[int],
             cell: MazeCell,
             draw_background: bool = True) -> None:
+        """Render a maze cell and its walls in the window.
+
+        Args:
+            pos: Cell coordinates as [x, y] in the maze grid.
+            cell: Cell instance containing walls and state flags.
+            draw_background: Whether to draw the cell fill before the walls.
+
+        Returns:
+            None: This function draws directly to the MLX window.
+        """
 
         cell_pos_x = pos[0] * cell_size_x
         cell_pos_y = pos[1] * cell_size_y
@@ -223,6 +310,18 @@ def main() -> None:
                 mlx, win, v_wall, cell_pos_x + cell_size_x, cell_pos_y)
 
     def redraw_zone(x: int, y: int) -> None:
+        """Redraw a cell and its immediate neighborhood.
+
+        This is used to refresh generation progress without redrawing the
+        entire maze each frame.
+
+        Args:
+            x: Horizontal cell index.
+            y: Vertical cell index.
+
+        Returns:
+            None: This function updates a local region of the window.
+        """
 
         assert generator is not None
 
@@ -241,6 +340,11 @@ def main() -> None:
             draw_cell([i, j], generator.maze.body[j][i], False)
 
     def redraw_maze() -> None:
+        """Redraw every cell of the current maze.
+
+        Returns:
+            None: This function repaints the full maze area.
+        """
         if generator is None:
             return
         for j in range(generator.height):
@@ -248,6 +352,11 @@ def main() -> None:
                 draw_cell([i, j], generator.maze.body[j][i])
 
     def redraw_ft() -> None:
+        """Redraw frontier cells after a frontier color change.
+
+        Returns:
+            None: This function repaints only frontier cells.
+        """
         if generator is None:
             return
         for j in range(generator.height):
@@ -256,6 +365,11 @@ def main() -> None:
                     draw_cell([i, j], generator.maze.body[j][i])
 
     def render_commands_panel() -> None:
+        """Draw the side panel listing available keyboard shortcuts.
+
+        Returns:
+            None: This function writes menu text to the MLX window.
+        """
         title_color = 0x00FFD166
         text_color = 0x00CCCCCC
 
@@ -266,6 +380,14 @@ def main() -> None:
             m.mlx_do_sync(mlx)
 
     def load_maze(algo_name: str) -> None:
+        """Initialize a new maze and prepare its rendering assets.
+
+        Args:
+            algo_name: Name of the generation algorithm to load.
+
+        Returns:
+            None: This function resets state and starts a new generation.
+        """
         nonlocal started, generator, creator, mode_selected
         nonlocal cell_size_x, cell_size_y, bg_image
         nonlocal start_image, end_image, imperfector, solver
@@ -313,6 +435,15 @@ def main() -> None:
         solver = generator._solve()
 
     def on_key(key: int, ctx: Any) -> None:
+        """Handle keyboard input for menus, generation, and solving.
+
+        Args:
+            key: Numeric MLX key code.
+            ctx: Unused MLX callback context.
+
+        Returns:
+            None: This function updates application state in response to keys.
+        """
 
         nonlocal selected, mode_selected
         nonlocal solving
@@ -376,6 +507,14 @@ def main() -> None:
             load_maze(mode_selected)
 
     def on_loop(ctx: Any) -> None:
+        """Advance menu animation, generation, or solving on each loop tick.
+
+        Args:
+            ctx: Unused MLX callback context.
+
+        Returns:
+            None: This function updates the rendered state incrementally.
+        """
         nonlocal started, frame, blink_on
         nonlocal generated
         nonlocal solved, solving
@@ -422,6 +561,11 @@ def main() -> None:
                     print('Solved !')
 
     def render_menu() -> None:
+        """Render the startup menu and its blinking selection cursor.
+
+        Returns:
+            None: This function draws the main menu to the MLX window.
+        """
         m.mlx_clear_window(mlx, win)
         m.mlx_put_image_to_window(
             mlx,
@@ -442,18 +586,31 @@ def main() -> None:
         m.mlx_do_sync(mlx)
 
     def on_close(ctx: Any) -> None:
+        """Exit the MLX loop when the window close event is triggered.
+
+        Args:
+            ctx: Unused MLX callback context.
+
+        Returns:
+            None: This function requests a clean shutdown of the loop.
+        """
         m.mlx_loop_exit(mlx)
 
     # Launching MLX
-    m.mlx_clear_window(mlx, win)
-    m.mlx_key_hook(win, on_key, None)
-    m.mlx_hook(win, 33, 0, on_close, None)
-    m.mlx_loop_hook(mlx, on_loop, None)
-    m.mlx_loop(mlx)
-    destroy_runtime_images()
-    m.mlx_loop_exit(mlx)
-    m.mlx_destroy_window(mlx, win)
-    m.mlx_release(mlx)
+    try:
+        m.mlx_clear_window(mlx, win)
+        m.mlx_key_hook(win, on_key, None)
+        m.mlx_hook(win, 33, 0, on_close, None)
+        m.mlx_loop_hook(mlx, on_loop, None)
+        m.mlx_loop(mlx)
+    except Exception as cur_error:
+        print(f"Error during graphical execution: {cur_error}")
+    finally:
+        destroy_runtime_images()
+        if win is not None:
+            m.mlx_destroy_window(mlx, win)
+        if mlx is not None:
+            m.mlx_release(mlx)
 
 
 if __name__ == "__main__":

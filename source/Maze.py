@@ -3,12 +3,23 @@ from typing import List, Dict
 
 
 class Maze:
+    """Represent a maze grid, its cells, and neighbourhood queries."""
 
     def __init__(self, height: int,
                  wid: int,
                  entry: List[int],
                  out: List[int]) -> None:
-        '''Initializes a maze with all cells having 4 walls'''
+        """Initialize a maze whose cells all start with four walls.
+
+        Args:
+            height: Maze height in number of cells.
+            wid: Maze width in number of cells.
+            entry: Entry cell coordinates as [x, y].
+            out: Exit cell coordinates as [x, y].
+
+        Returns:
+            None: This constructor initializes the maze in place.
+        """
 
         if not (isinstance(entry, list) and isinstance(out, list)):
             raise TypeError('Entry and exit must both be a list of integers')
@@ -53,18 +64,61 @@ class Maze:
             raise ValueError("The exit can't be in the 42 in the middle")
 
     def is_top_border(self, y: int) -> bool:
+        """Check whether a row index lies on the top border.
+
+        Args:
+            y: Row index to test.
+
+        Returns:
+            bool: True when the row is the first row of the maze.
+        """
         return y == 0
 
     def is_bot_border(self, y: int) -> bool:
+        """Check whether a row index lies on the bottom border.
+
+        Args:
+            y: Row index to test.
+
+        Returns:
+            bool: True when the row is the last row of the maze.
+        """
         return y == self.height - 1
 
     def is_left_border(self, x: int) -> bool:
+        """Check whether a column index lies on the left border.
+
+        Args:
+            x: Column index to test.
+
+        Returns:
+            bool: True when the column is the first column of the maze.
+        """
         return x == 0
 
     def is_right_border(self, x: int) -> bool:
+        """Check whether a column index lies on the right border.
+
+        Args:
+            x: Column index to test.
+
+        Returns:
+            bool: True when the column is the last column of the maze.
+        """
         return x == self.wid - 1
 
     def _get_valid_neighbours(self, x: int, y: int) -> Dict[str, List[int]]:
+        """Return unvisited neighbours that can be carved next.
+
+        Args:
+            x: Horizontal index of the source cell.
+            y: Vertical index of the source cell.
+
+        Returns:
+            Dict[str, List[int]]: Mapping of directions to neighbour
+            coordinates that are inside the maze, unvisited, and not part of
+            the 42 pattern.
+        """
         res = {}
         if (not self.is_top_border(y)
             and not self.body[y - 1][x]._is_visited
@@ -85,6 +139,16 @@ class Maze:
         return res
 
     def _get_visited_neighbours(self, x: int, y: int) -> Dict[str, List[int]]:
+        """Return already visited neighbours around a cell.
+
+        Args:
+            x: Horizontal index of the source cell.
+            y: Vertical index of the source cell.
+
+        Returns:
+            Dict[str, List[int]]: Mapping of directions to neighbour
+            coordinates that have already been visited.
+        """
         res = {}
         if (not self.is_top_border(y)
             and self.body[y - 1][x]._is_visited
@@ -105,6 +169,16 @@ class Maze:
         return res
 
     def _get_walled_neighbours(self, x: int, y: int) -> Dict[str, List[int]]:
+        """Return adjacent neighbours still separated by walls.
+
+        Args:
+            x: Horizontal index of the source cell.
+            y: Vertical index of the source cell.
+
+        Returns:
+            Dict[str, List[int]]: Mapping of directions to neighbouring cells
+            whose shared wall is still closed.
+        """
         res = {}
         if (not self.is_top_border(y)
             and self.body[y - 1][x].south
@@ -131,7 +205,16 @@ class Maze:
     def _get_unsolved_neighbours(self,
                                  x: int,
                                  y: int) -> Dict[str, tuple[int, int]]:
-        """ Return a Dict with the unsolved Cell from a position """
+        """Return reachable neighbouring cells not yet marked as solved.
+
+        Args:
+            x: Horizontal index of the source cell.
+            y: Vertical index of the source cell.
+
+        Returns:
+            Dict[str, tuple[int, int]]: Mapping of directions to reachable
+            neighbours available to the solver.
+        """
         res = {}
         if (not self.is_top_border(y)
             and not self.body[y - 1][x]._is_solved
@@ -160,6 +243,11 @@ class Maze:
         return res
 
     def __set_forty_two_pattern(self) -> None:
+        """Mark the central 42 pattern cells when the maze is large enough.
+
+        Returns:
+            None: This method updates maze cells in place.
+        """
         pattern = [
             "1   222",
             "1     2",
@@ -167,7 +255,7 @@ class Maze:
             "  1 2  ",
             "  1 222"
         ]
-        if self.wid < 7 or self.height < 5:
+        if self.wid <= 7 or self.height <= 5:
             print('Not enough space to put the 42 pattern, continuing without')
             return
         start_x = (self.wid - 7) // 2
@@ -178,12 +266,40 @@ class Maze:
                     self.body[start_y + j][start_x + i]._is_ft = True
 
     def __is_open_vertically(self, x: int, y: int) -> bool:
+        """Check whether two vertically adjacent cells are connected.
+
+        Args:
+            x: Column index of the upper cell.
+            y: Row index of the upper cell.
+
+        Returns:
+            bool: True when the shared vertical passage is open.
+        """
         return not self.body[y][x].south and not self.body[y + 1][x].north
 
     def __is_open_horizontally(self, x: int, y: int) -> bool:
+        """Check whether two horizontally adjacent cells are connected.
+
+        Args:
+            x: Column index of the left cell.
+            y: Row index of the left cell.
+
+        Returns:
+            bool: True when the shared horizontal passage is open.
+        """
         return not self.body[y][x].east and not self.body[y][x + 1].west
 
     def __is_valid_cell(self, x: int, y: int) -> bool:
+        """Check local wall structure around a cell for validity.
+
+        Args:
+            x: Horizontal index of the cell to inspect.
+            y: Vertical index of the cell to inspect.
+
+        Returns:
+            bool: True when the local neighbourhood does not create an invalid
+            open area.
+        """
         for i in range(3):
             for j in range(2):
                 if not (self.__is_open_horizontally(x - 1 + j, y - 1 + i)):
@@ -195,6 +311,11 @@ class Maze:
         return False
 
     def _is_valid(self) -> bool:
+        """Validate the maze by checking every non-border cell.
+
+        Returns:
+            bool: True when the maze satisfies the local validity rules.
+        """
         for y in range(1, self.height - 1):
             for x in range(1, self.wid - 1):
                 if not self.__is_valid_cell(x, y):
