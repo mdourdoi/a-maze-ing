@@ -8,7 +8,8 @@ class Maze:
     def __init__(self, height: int,
                  wid: int,
                  entry: List[int],
-                 out: List[int]) -> None:
+                 out: List[int],
+                 verbose: bool = False) -> None:
         """Initialize a maze whose cells all start with four walls.
 
         Args:
@@ -57,7 +58,7 @@ class Maze:
         self.out: List[int] = out
         self.body[entry[1]][entry[0]].is_start = True
         self.body[out[1]][out[0]].is_end = True
-        self.__set_forty_two_pattern()
+        self.__set_forty_two_pattern(verbose)
         if self.body[entry[1]][entry[0]]._is_ft:
             raise ValueError("The entry can't be in the 42 in the middle")
         if self.body[out[1]][out[0]]._is_ft:
@@ -242,7 +243,7 @@ class Maze:
             res['west'] = (x - 1, y)
         return res
 
-    def __set_forty_two_pattern(self) -> None:
+    def __set_forty_two_pattern(self, verbose: bool = False) -> None:
         """Mark the central 42 pattern cells when the maze is large enough.
 
         Returns:
@@ -256,7 +257,9 @@ class Maze:
             "  1 222"
         ]
         if self.wid <= 7 or self.height <= 5:
-            print('Not enough space to put the 42 pattern, continuing without')
+            if verbose:
+                print('Not enough space for the 42 pattern.', end='')
+                print('Continuing without ...')
             return
         start_x = (self.wid - 7) // 2
         start_y = (self.height - 5) // 2
