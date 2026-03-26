@@ -22,13 +22,13 @@
 # Description
 
 
-A-Maze-Ing is a Python3 project that combine maze generation, maze solving algorithms and graphical display.
+A-Maze-Ing is a Python3 project that combines maze generation, maze solving algorithms and graphical display.
 
 The purpose of this project is to **easily generate** multiple **mazes** that can be reused for different **game projects** 
 
 The Graphical User Interface (GUI) is made by using the **MiniLibX graphical library** given by 42School.
 
-In addition to that, the project offers two fully usable **maze generators: HuntAndKillGenerator and PrimGenerator** in Python that canbe integrated in any project. 
+In addition to that, the project offers two fully usable **maze generators: HuntAndKillGenerator and PrimGenerator** in Python that can be integrated in any project. 
 
 
 # Instructions
@@ -48,7 +48,7 @@ make install
 
 ### Running
 
-DISCLAIMER : You need to have the mlx package installed (at least version 2.2). A wheel is available in the ressources folder.
+DISCLAIMER : You need to have the mlx package installed (at least version 2.2). A wheel is available in the resources folder.
 
 ```bash
 python3 a_maze_ing.py config.txt
@@ -63,7 +63,7 @@ make run
 
 - To get the global idea of each algorithms : https://professor-l.github.io/mazes/ and https://weblog.jamisbuck.org/2011/2/7/maze-generation-algorithm-recap
 
-- AI was used as a helper to understand how the MLX works and as a way to be faster for documentation (for example what is the value of each key for the key_hook of the MLX or how create an instance of random with a seed). It was also used in the early stages for early stage development to represent a maze on the terminal, this wasn't kept in the final project.
+- AI was used as a helper to understand how the MLX works and as a way to be faster for documentation (for example what is the value of each key for the key_hook of the MLX or how create an instance of random with a seed). It was also used in the early stages to represent a maze on the terminal, this wasn't kept in the final project.
 
 # Project
 
@@ -71,11 +71,11 @@ make run
 
 ### Prelude
 
-The **a-maze-ing** package contains 2 maze generation algorithm : the **HuntAndKill** algorithm and **Prim's** algorithm. Each corresponds to a generator that can be instanciated.
+The **a-maze-ing** package contains 2 maze generation algorithms : the **HuntAndKill** algorithm and **Prim's** algorithm. Each corresponds to a generator that can be instantiated.
 
-New generators can be created via the abstract class **MazeGenerator**, only the method **generate_maze** must be implemented as the solver is within the abstract class. The method must work accordingly to the others already implemented : visited cells must be marked as visited, and it must instanciate a Generator that yields a list [x, y] where x and y are the coordinates of the cell you're trying to update (the MLX will update all cells around this one).
+New generators can be created via the abstract class **MazeGenerator**, only the method **generate_maze** must be implemented as the solver is within the abstract class. The method must work according to the others already implemented : visited cells must be marked as visited, and it must instantiate a Generator that yields a list [x, y] where x and y are the coordinates of the cell you're trying to update (the MLX will update all cells around this one).
 
-We decided to go with these algorithm because they naturally create perfect mazes, and we decided to go for the "make a perfect maze then break walls" plan for imperfect algorithms because it seemed easier.
+We decided to go with these algorithms because they naturally create perfect mazes, and we decided to go for the "make a perfect maze then break walls" plan for imperfect algorithms because it seemed easier.
  
 ### Hunt And Kill
 
@@ -129,13 +129,13 @@ The project contains one solver algorithm within the MazeGenerator abstract clas
 
 ### A* Algorithm:
 
-We choose A* algorithm as a solving algorithm because of its performance. It is an alternative to the Dijkstra's algorithm which is used for graph exploration and pathfinding.
+We chose A* algorithm as a solving algorithm because of its performance. It is an alternative to the Dijkstra's algorithm which is used for graph exploration and pathfinding.
 
-The main difference comparing to Dijkstra is the use of an heuristic function h(n), the estimated distance from node n and the goal, and the use of g(n), the distance from the node n to the starting point. 
+The main difference comparing to Dijkstra is the use of a heuristic function h(n), the estimated distance from node n and the goal, and the use of g(n), the distance from the node n to the starting point. 
 
-The heuristic function h behaves as a criteria to get the shortest path to the goal. Two types of heuristic functions are traditionaly used, the euclidian heuristic, which calculate the straight distance between 2 point and the Manhattan geometry which calculate the distance by doing the sum of the absolute difference of their respective Cartesian coordinates.
+The heuristic function h behaves as a criteria to get the shortest path to the goal. Two types of heuristic functions are traditionally used, the Euclidean heuristic, which calculates the straight distance between 2 points and the Manhattan geometry which calculates the distance by doing the sum of the absolute difference of their respective Cartesian coordinates.
 
-The value of each node is calculated by making the sum f of the g(n) and h(n) functions. At each step the algorithm picks a neighbor cell and calculates its score f, if the cost of that node is inferior to the corresponding node in the came_from list it replaces it. This steps repeats until it finds the exit cell or until there is no cell in the open list anymore. This method ensures us to find the shortest path from the start to the exit.
+The value of each node is calculated by making the sum f of the g(n) and h(n) functions. At each step the algorithm picks a neighbor cell and calculates its score f, if the cost of that node is inferior to the corresponding node in the came_from list it replaces it. This step repeats until it finds the exit cell or until there is no cell in the open list anymore. This method ensures us to find the shortest path from the start to the exit.
 
 > #### Pseudo Code:
 >```
@@ -154,7 +154,7 @@ The value of each node is calculated by making the sum f of the g(n) and h(n) fu
 >```
 
 # Output file
-The output file generated by the program contains the data that represents the maze, the entry and the exit coordonates of the maze, and the shortest solution path from start to exit. 
+The output file generated by the program contains the data that represents the maze, the entry and the exit coordinates of the maze, and the shortest solution path from start to exit. 
 
 >    **Output file format:**
 >    ```
@@ -192,7 +192,7 @@ We used the MLX to implement a visual representation of the maze.
 
 We first render a simple menu asking the user to select one of the 2 available algorithms (up and down + enter to select) and then create one in real time using the loop hook from the MLX (with big mazes it can take a while to generate). This gives an interactive way of representing the approaches we had to generate mazes.
 
-When a maze is fully rendered, you have several inputs to interact with it : regenerate a maze with a specific algorithm, solve it, export the file, change colors, etc ... The maze must be fully rendered before these inputs to avoid incoherent behavior like solving before the end, or graphical bugs (you can still press Esc or the cross button to exit whenever you want). Additionaly, the maze must be solved before exporting.
+When a maze is fully rendered, you have several inputs to interact with it : regenerate a maze with a specific algorithm, solve it, export the file, change colors, etc ... The maze must be fully rendered before these inputs to avoid incoherent behavior like solving before the end, or graphical bugs (you can still press Esc or the cross button to exit whenever you want). Additionally, the maze must be solved before exporting.
 
 The parameters used for the generation are the ones in the config file explained below.
 
@@ -203,7 +203,7 @@ For the graphical display, maze generation parameters can be modified passing by
 
 >   This config file works by using 'KEY=VALUE' pair per line.
 >
->   **Attended Config file Format :**
+>   **Expected Config file Format :**
 >
 >  ```
 >   WIDTH=80
@@ -224,13 +224,13 @@ For the graphical display, maze generation parameters can be modified passing by
 >
 >   -    **ENTRY**
 >
->       Gives the coordonate of the maze's entry, the value must be "x,y" where x and y are integers.
+>       Gives the coordinate of the maze's entry, the value must be "x,y" where x and y are integers.
 >   -    **EXIT**
 > 
->       Gives the coordonate of the maze's exit, the value must be "x,y" where x and y are integers.
+>       Gives the coordinate of the maze's exit, the value must be "x,y" where x and y are integers.
 >   -    **OUTPUT_FILE**
 > 
->       Specifies the name of the outfile where are contains the data of the Generated Maze and the shortest path from entry to solution.
+>       Specifies the name of the output file which contains the data of the Generated Maze and the shortest path from entry to solution.
 >   -    **PERFECT**
 >
 >       Boolean ('True'/'False') value that specifies if the Maze must be a perfect maze (only one path from the entry and the exit) or an imperfect maze (open maze with multiple paths from entry to exit).
@@ -243,15 +243,15 @@ For the graphical display, maze generation parameters can be modified passing by
 
 - Instead of drawing each pixel when we need to render something, we create static images that get destroyed after each use.
 - When the config file contains a seed that is not 'None', a warning message is displayed when generating a maze to inform the user that each algorithm will generate the same maze when reloading.
-- When generating the maze, we always redraw all the neighbouring cells to prevent visual anomalies sinc a wall is shared with its neighbours, and its angles with all the surrouding cells. It also allows us to just draw around a cell without having to look at which cell it carves to.
+- When generating the maze, we always redraw all the neighbouring cells to prevent visual anomalies since a wall is shared with its neighbours, and its angles with all the surrounding cells. It also allows us to just draw around a cell without having to look at which cell it carves to.
 
 # Reusability and package
 
 This whole project was also made to be used outside of the visual interface, so it is possible to import it as a package and reuse the different classes alone.
 
-Since we need a lot of things for the display and not all of them can be used as they are, it is highly **NOT** recommended to use the methods starting with an underscord without knowing how all this project works. Lots of attributes are open in case you want to tweak the maze, you can modify it at your own risk.
+Since we need a lot of things for the display and not all of them can be used as they are, it is highly **NOT** recommended to use the methods starting with an underscore without knowing how all this project works. Lots of attributes are open in case you want to tweak the maze, you can modify it at your own risk.
 
-The arguments to pass to instanciate a generator are self explanatory, you just need to create an instance of your choosen generator (PrimGenerator or HuntAndKillGenerator) and pass the arguments when creating the object.
+The arguments to pass to instantiate a generator are self explanatory, you just need to create an instance of your chosen generator (PrimGenerator or HuntAndKillGenerator) and pass the arguments when creating the object.
 
 Here is a list of what can be safely used and how it works :
 
@@ -285,7 +285,7 @@ This example shows how to instantiate a generator with custom parameters, genera
 
 - Maze :
 	- wid : strictly positive integer, the numbers of columns
-	- height : strictly prositive integerthe number of rows
+	- height : strictly positive integer, the number of rows
 	- body : List[List[MazeCell]] representing a maze, thus the cell at the coordinates [x, y] is self.body[y][x]
 	- entry, out : List[int], positions of entry and exit
 
@@ -311,7 +311,7 @@ This example shows how to instantiate a generator with custom parameters, genera
 		- solves it if it's not already solved
 		- if export = True, it exports the maze inside the generator in a file named *filename*
 		- before creating a new maze, you should call reset_maze before, or it will just do nothing
-	- basic_example : instanciate a generator with a 20x15 imperfect maze and no seed, the entry is at [0,0] and the exit is at [19,14]
+	- basic_example : instantiate a generator with a 20x15 imperfect maze and no seed, the entry is at [0,0] and the exit is at [19,14]
 
 
 # Team and project management
@@ -339,7 +339,7 @@ Both :
 
 ## How we planned versus reality
 
-How we planned the project : A class for the cells, a class for the maze and a maze generator to act on the maze. The idea was to use cell and maze to get informations (mostly about the position of the cell and the state of it surrounding and itself) and the generator to perform actions on said maze and solve it.
+How we planned the project : A class for the cells, a class for the maze and a maze generator to act on the maze. The idea was to use cell and maze to get information (mostly about the position of the cell and the state of its surrounding and itself) and the generator to perform actions on said maze and solve it.
 
 The global plan was in this order : implementing classes -> implementing the specific algorithm to create valid mazes -> put the 42 logo in the middle -> render it using MLX -> improving the UI/UX -> doing the final chores (readme, makefile, mypy, etc ...)
 
@@ -347,7 +347,7 @@ It turned out to be the way to go, the only minor change we did was to transform
 
 ## What worked well
 
-Globally everything in this project was straight forward except the MLX tantrums
+Globally everything in this project was straightforward except the MLX tantrums
 
 ## What could be improved
 
