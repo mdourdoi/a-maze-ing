@@ -13,13 +13,16 @@ def get_config(config_file: str) -> Dict[str, Any]:
     config: Dict[Any, Any] = dict()
     with open(config_file, 'r') as file:
         for line in file:
-            if line.startswith('#'):
-                continue
             line = line.rstrip('\n')
+            line = line.strip()
+            if line.startswith('#') or len(line) == 0:
+                continue
             current = line.split(sep='=')
             if len(current) != 2:
                 err = 'Invalid config file. All lines must be <KEY>=<VALUE>.'
                 raise ValueError(err)
+            current[0] = current[0].strip()
+            current[1] = current[1].strip()
             config[current[0]] = current[1]
     mandatory = ['WIDTH', 'HEIGHT', 'ENTRY', 'EXIT', 'OUTPUT_FILE', 'PERFECT']
     if not all(key in config for key in mandatory):

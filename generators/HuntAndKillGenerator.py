@@ -28,7 +28,7 @@ class HuntAndKillGenerator(MazeGenerator):
         super().__init__(name, entry, out, height, wid, seed)
 
     def _generate_maze(self) -> Generator[List[int], None, None]:
-        """Generate the maze using the Hunt-and-Kill traversal strategy.
+        """Generate the maze using the Hunt-and-Kill strategy.
 
         Returns:
             Generator[List[int], None, None]: A generator yielding the

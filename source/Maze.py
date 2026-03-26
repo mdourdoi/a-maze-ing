@@ -255,7 +255,7 @@ class Maze:
             "  1 2  ",
             "  1 222"
         ]
-        if self.wid < 7 or self.height < 5:
+        if self.wid <= 7 or self.height <= 5:
             print('Not enough space to put the 42 pattern, continuing without')
             return
         start_x = (self.wid - 7) // 2
